@@ -11,6 +11,10 @@ import { prisma } from "@/lib/prisma";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "database" },
+  // Auth.js auto-trusts the host on Vercel (it detects the VERCEL env var)
+  // but not on Netlify or anywhere else -- without this, every request in
+  // production throws "UntrustedHost" rather than actually signing in.
+  trustHost: true,
   providers: [
     Nodemailer({
       server: { host: "localhost", port: 25 },
