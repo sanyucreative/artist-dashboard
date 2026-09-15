@@ -1,0 +1,293 @@
+// Artist CRM -- v1 schema (build spec phases 1-7).
+// Local dev uses sqlite (see prisma7.config.ts / .env); swapping to Postgres
+// for deploy is a one-line datasource change, not a schema rewrite. sqlite
+// has no native enum or scalar-list types, so enum-like and multi-value
+// fields below are plain String / Json instead of Prisma `enum` / `Type[]`
+// -- documented inline with their allowed values.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ---------- Auth (NextAuth / Auth.js v5, email magic link) ----------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+
+  // disciplines: string[] (visual art, photography, writing, performance, music, design, ...)
+  disciplines String @default("[]")
+  timezone    String?
+
+  accounts   Account[]
+  sessions   Session[]
+  workspaces Workspace[]
+
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Workspace ----------
+// Keeps a professional identity (e.g. a design studio) separate from an art
+// practice. Every domain record below belongs to exactly one workspace.
+
+model Workspace {
+  id     String @id @default(cuid())
+  userId String
+  name   String
+  // type: free text, e.g. "art practice", "design studio"
+  type   String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  projects      Project[]
+  opportunities Opportunity[]
+  applications  Application[]
+  assets        Asset[]
+  cvEntries     CVEntry[]
+  contacts      Contact[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- Project ----------
+
+model Project {
+  id           String  @id @default(cuid())
+  workspaceId  String
+  title        String
+  workingTitle String?
+  // status: active | dormant | complete | ongoing
+  status       String  @default("active")
+  description  String?
+  startDate    DateTime?
+  medium       String?
+  // themes: string[] tags, stored as a JSON array string
+  themes       String  @default("[]")
+  // Some projects are designed to keep growing and never close -- the UI
+  // must not push these toward "complete".
+  isOngoing    Boolean @default(false)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  participants Participant[]
+  assets       Asset[]
+  milestones   Milestone[]
+  applications ApplicationProject[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Participant {
+  id            String  @id @default(cuid())
+  projectId     String
+  name          String
+  role          String?
+  contactEmail  String?
+  // consentStatus: not_requested | requested | granted | declined | expired
+  consentStatus String  @default("not_requested")
+  notes         String?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Milestone {
+  id        String    @id @default(cuid())
+  projectId String
+  title     String
+  dueDate   DateTime?
+  // status: planned | in_progress | done
+  status    String    @default("planned")
+  notes     String?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- Opportunity / Application ----------
+
+model Opportunity {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  organization String?
+  // type: grant | residency | fellowship | exhibition_call | commission | mentorship | award
+  type        String    @default("grant")
+  url         String?
+  deadline    DateTime?
+  notifyAt    DateTime?
+  feeAmount   Float?
+  awardAmount Float?
+  discipline  String?
+  eligibilityNotes String?
+  isRecurring Boolean   @default(false)
+  // recurrenceCadence: free text, e.g. "annual"
+  recurrenceCadence String?
+
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  applications Application[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Application {
+  id            String    @id @default(cuid())
+  opportunityId String
+  workspaceId   String
+  // status: researching | drafting | submitted | under_review | decision
+  status        String    @default("researching")
+  submittedAt   DateTime?
+  decisionAt    DateTime?
+  // outcome: accepted | declined | ineligible | withdrawn | waitlisted | no_response | null (no decision yet)
+  outcome       String?
+  outcomeReason String?
+  // outcomeReasonCode: eligibility_not_met | insufficient_documentation | competitive_pool |
+  //   lottery | budget_scope | weak_work_samples | misaligned_with_program | no_reason_given | other
+  outcomeReasonCode String?
+  canReapply    Boolean   @default(false)
+  reapplyDate   DateTime?
+  feedbackReceived String?
+  // "what I'd change" -- written at decision time while it's fresh
+  retro         String?
+
+  opportunity Opportunity           @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  workspace   Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projects    ApplicationProject[]
+  assetsUsed  ApplicationAsset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Application <-> Project many-to-many
+model ApplicationProject {
+  applicationId String
+  projectId     String
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([applicationId, projectId])
+}
+
+// Application <-> Asset many-to-many (which images/statements/CV version went in)
+model ApplicationAsset {
+  applicationId String
+  assetId       String
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  asset       Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@id([applicationId, assetId])
+}
+
+// ---------- Asset library ----------
+
+model Asset {
+  id          String   @id @default(cuid())
+  workspaceId String
+  // type: image | artist_statement | bio | cv | work_sample | budget | letter_of_support | other
+  type        String
+  title       String
+  fileUrl     String?
+  version     String?
+  projectId   String?
+  notes       String?
+
+  workspace Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project   Project?           @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  usedIn    ApplicationAsset[]
+
+  createdAt DateTime @default(now())
+}
+
+// ---------- CV ----------
+
+model CVEntry {
+  id          String    @id @default(cuid())
+  workspaceId String
+  // category: exhibition | award | residency | publication | talk | press
+  category    String
+  title       String
+  organization String?
+  location    String?
+  date        DateTime?
+  description String?
+  // set automatically when an application's outcome becomes "accepted"
+  sourceApplicationId String?
+  isPublic    Boolean   @default(true)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+// ---------- Contacts ----------
+
+model Contact {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  organization String?
+  role        String?
+  email       String?
+  phone       String?
+  // relationshipType: funder | curator | gallerist | collaborator | mentor | press
+  relationshipType String?
+  notes       String?
+  lastContactedAt DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
