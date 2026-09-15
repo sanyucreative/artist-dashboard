@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 
@@ -14,7 +15,11 @@ const NAV_LINKS = [
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  const workspace = await getWorkspaceForUser(session!.user.id);
+  // Middleware only does an optimistic cookie-presence check (it runs on
+  // the Edge runtime and can't hit the database) -- this is the real check,
+  // for the rare case of a stale/invalid cookie that passed that one.
+  if (!session?.user?.id) redirect("/login");
+  const workspace = await getWorkspaceForUser(session.user.id);
 
   return (
     <div className="min-h-screen">
