@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Artist CRM",
+  title: "Artist Dashboard",
   description: "Track opportunities, projects, and the applications that connect them.",
 };
 

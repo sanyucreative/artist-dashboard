@@ -26,7 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="border-b border-neutral-200">
         <div className="mx-auto max-w-3xl px-6 pt-3">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <span className="shrink-0 text-sm font-semibold text-neutral-900">Artist CRM</span>
+            <span className="shrink-0 text-sm font-semibold text-neutral-900">Artist Dashboard</span>
             <div className="flex min-w-0 items-center gap-3">
               <span className="truncate text-xs text-neutral-500">{workspace.name}</span>
               <form

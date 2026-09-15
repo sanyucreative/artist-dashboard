@@ -4,7 +4,7 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900">Artist CRM</h1>
+        <h1 className="text-xl font-semibold text-neutral-900">Artist Dashboard</h1>
         <p className="mt-1 text-sm text-neutral-500">
           Sign in with your email — we&apos;ll send a link, no password needed.
         </p>
