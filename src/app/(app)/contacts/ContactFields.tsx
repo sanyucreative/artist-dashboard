@@ -17,9 +17,13 @@ export function ContactFields({
     relationshipType: string | null;
     notes: string | null;
     lastContactedAt: Date | null;
+    tags: string;
+    nextFollowUpDate: Date | null;
+    followUpNote: string | null;
   };
 }) {
   const c = contact;
+  const tagsArray: string[] = c ? JSON.parse(c.tags || "[]") : [];
   const input = "rounded-md border border-neutral-300 px-2.5 py-1.5 text-sm w-full";
   const label = "block text-xs text-neutral-500 mb-1";
 
@@ -60,9 +64,26 @@ export function ContactFields({
         Last contacted
         <input type="date" name="lastContactedAt" defaultValue={toDateInputValue(c?.lastContactedAt)} className={input} />
       </label>
+      <label className={label}>
+        Tags (comma-separated)
+        <input name="tags" defaultValue={tagsArray.join(", ")} placeholder="e.g. warm intro, board member" className={input} />
+      </label>
       <label className={label + " col-span-2"}>
         Notes
         <textarea name="notes" defaultValue={c?.notes ?? ""} rows={2} className={input} />
+      </label>
+      <label className={label}>
+        Follow up on
+        <input
+          type="date"
+          name="nextFollowUpDate"
+          defaultValue={toDateInputValue(c?.nextFollowUpDate)}
+          className={input}
+        />
+      </label>
+      <label className={label}>
+        Follow-up note
+        <input name="followUpNote" defaultValue={c?.followUpNote ?? ""} placeholder="e.g. wanted a preview of the fall show" className={input} />
       </label>
     </>
   );

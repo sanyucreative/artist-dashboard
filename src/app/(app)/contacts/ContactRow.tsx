@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { deleteContact, toggleContactOpportunity, toggleContactProject, updateContact } from "./actions";
+import { clearFollowUp, deleteContact, toggleContactOpportunity, toggleContactProject, updateContact } from "./actions";
 import { ContactFields } from "./ContactFields";
 import { titleCase } from "@/lib/constants";
+import { formatFullDate } from "@/lib/format";
 
 export type ContactData = {
   id: string;
@@ -15,9 +16,18 @@ export type ContactData = {
   relationshipType: string | null;
   notes: string | null;
   lastContactedAt: Date | null;
+  tags: string;
+  nextFollowUpDate: Date | null;
+  followUpNote: string | null;
   opportunities: { opportunityId: string }[];
   projects: { projectId: string }[];
 };
+
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
 
 export function ContactRow({
   contact,
@@ -34,6 +44,8 @@ export function ContactRow({
 
   const linkedOpportunityIds = new Set(contact.opportunities.map((o) => o.opportunityId));
   const linkedProjectIds = new Set(contact.projects.map((p) => p.projectId));
+  const tags: string[] = JSON.parse(contact.tags || "[]");
+  const isOverdue = contact.nextFollowUpDate && contact.nextFollowUpDate < startOfToday();
 
   if (editing) {
     return (
@@ -53,11 +65,13 @@ export function ContactRow({
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
               Cancel
             </button>
-            <form action={() => deleteContact(contact.id)} className="ml-auto">
-              <button type="submit" className="text-xs text-red-600 hover:underline">
-                Delete
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={() => startTransition(() => deleteContact(contact.id))}
+              className="ml-auto text-xs text-red-600 hover:underline"
+            >
+              Delete
+            </button>
           </div>
         </form>
       </li>
@@ -75,6 +89,11 @@ export function ContactRow({
                 {titleCase(contact.relationshipType)}
               </span>
             )}
+            {tags.map((tag) => (
+              <span key={tag} className="rounded bg-blue-50 px-1.5 py-0.5 text-[11px] text-blue-700">
+                {tag}
+              </span>
+            ))}
           </div>
           <p className="text-xs text-neutral-500">
             {[contact.organization, contact.role].filter(Boolean).join(" · ") || "No organization"}
@@ -91,6 +110,24 @@ export function ContactRow({
           </button>
         </div>
       </div>
+
+      {contact.nextFollowUpDate && (
+        <div
+          className={`mt-2 flex items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs ${
+            isOverdue ? "bg-amber-50 text-amber-800" : "bg-neutral-50 text-neutral-600"
+          }`}
+        >
+          <span>
+            Follow up {formatFullDate(contact.nextFollowUpDate)}
+            {contact.followUpNote && <> — {contact.followUpNote}</>}
+          </span>
+          <form action={() => clearFollowUp(contact.id)}>
+            <button type="submit" className="shrink-0 text-neutral-400 hover:text-neutral-700">
+              Done
+            </button>
+          </form>
+        </div>
+      )}
 
       {expanded && (
         <div className="mt-3 grid grid-cols-2 gap-4 border-t border-neutral-100 pt-3">

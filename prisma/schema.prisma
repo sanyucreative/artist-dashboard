@@ -178,9 +178,25 @@ model Opportunity {
   workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   applications Application[]
   contacts     ContactOpportunity[]
+  eligibilityCriteria EligibilityCriterion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// A structured checklist per opportunity, alongside the free-text
+// eligibilityNotes -- per spec: "many rejections come from eligibility
+// criteria the artist could have verified in advance," a checkbox list is
+// what actually gets checked before submitting, not a paragraph of notes.
+model EligibilityCriterion {
+  id            String  @id @default(cuid())
+  opportunityId String
+  label         String
+  checked       Boolean @default(false)
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
 
 model Application {
@@ -294,6 +310,15 @@ model Contact {
   relationshipType String?
   notes       String?
   lastContactedAt DateTime?
+  // Free-form tags (not in the spec's Contact model): Artwork Archive's own
+  // users rely on these for nuance beyond a fixed relationship type, e.g.
+  // "warm intro", "board member". Stored the same way as Project.themes.
+  tags String @default("[]")
+  // Follow-up reminder: a date + note set from the contact's own record, e.g.
+  // "mentioned wanting a preview of the fall show -- follow up". Surfaced on
+  // the Contacts list and the Dashboard once due.
+  nextFollowUpDate DateTime?
+  followUpNote     String?
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   opportunities ContactOpportunity[]

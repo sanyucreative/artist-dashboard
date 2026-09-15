@@ -39,7 +39,10 @@ export default async function OpportunitiesPage({
 
   const opportunities = await prisma.opportunity.findMany({
     where,
-    include: { applications: { select: { id: true, status: true, submittedAt: true } } },
+    include: {
+      applications: { select: { id: true, status: true, submittedAt: true } },
+      eligibilityCriteria: { orderBy: { createdAt: "asc" } },
+    },
     orderBy: { deadline: "asc" },
   });
 

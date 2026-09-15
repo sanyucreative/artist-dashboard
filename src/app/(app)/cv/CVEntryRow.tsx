@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { deleteCVEntry, updateCVEntry } from "./actions";
 import { CVEntryFields } from "./CVEntryFields";
 import { dateYearUTC } from "@/lib/format";
@@ -19,6 +19,7 @@ export type CVEntryData = {
 
 export function CVEntryRow({ entry }: { entry: CVEntryData }) {
   const [editing, setEditing] = useState(false);
+  const [, startTransition] = useTransition();
 
   if (editing) {
     return (
@@ -38,11 +39,13 @@ export function CVEntryRow({ entry }: { entry: CVEntryData }) {
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
               Cancel
             </button>
-            <form action={() => deleteCVEntry(entry.id)} className="ml-auto">
-              <button type="submit" className="text-xs text-red-600 hover:underline">
-                Delete
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={() => startTransition(() => deleteCVEntry(entry.id))}
+              className="ml-auto text-xs text-red-600 hover:underline"
+            >
+              Delete
+            </button>
           </div>
         </form>
       </li>

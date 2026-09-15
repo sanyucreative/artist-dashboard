@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { updateProject, deleteProject } from "../actions";
 import { ProjectFields } from "../ProjectFields";
 import { titleCase } from "@/lib/constants";
@@ -19,6 +19,7 @@ type ProjectData = {
 
 export function ProjectHeader({ project }: { project: ProjectData }) {
   const [editing, setEditing] = useState(false);
+  const [, startTransition] = useTransition();
   const themes: string[] = JSON.parse(project.themes || "[]");
 
   if (editing) {
@@ -39,11 +40,13 @@ export function ProjectHeader({ project }: { project: ProjectData }) {
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
               Cancel
             </button>
-            <form action={() => deleteProject(project.id)} className="ml-auto">
-              <button type="submit" className="text-xs text-red-600 hover:underline">
-                Delete project
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={() => startTransition(() => deleteProject(project.id))}
+              className="ml-auto text-xs text-red-600 hover:underline"
+            >
+              Delete project
+            </button>
           </div>
         </form>
       </div>

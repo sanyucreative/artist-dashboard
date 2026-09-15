@@ -21,6 +21,15 @@ function dateVal(formData: FormData, key: string) {
   return v ? new Date(v) : null;
 }
 
+function tagsFromInput(formData: FormData) {
+  const raw = str(formData, "tags") ?? "";
+  const list = raw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+  return JSON.stringify(list);
+}
+
 export async function createContact(formData: FormData) {
   const workspaceId = await currentWorkspaceId();
   await prisma.contact.create({
@@ -34,9 +43,13 @@ export async function createContact(formData: FormData) {
       relationshipType: str(formData, "relationshipType"),
       notes: str(formData, "notes"),
       lastContactedAt: dateVal(formData, "lastContactedAt"),
+      tags: tagsFromInput(formData),
+      nextFollowUpDate: dateVal(formData, "nextFollowUpDate"),
+      followUpNote: str(formData, "followUpNote"),
     },
   });
   revalidatePath("/contacts");
+  revalidatePath("/dashboard");
 }
 
 export async function updateContact(id: string, formData: FormData) {
@@ -51,9 +64,19 @@ export async function updateContact(id: string, formData: FormData) {
       relationshipType: str(formData, "relationshipType"),
       notes: str(formData, "notes"),
       lastContactedAt: dateVal(formData, "lastContactedAt"),
+      tags: tagsFromInput(formData),
+      nextFollowUpDate: dateVal(formData, "nextFollowUpDate"),
+      followUpNote: str(formData, "followUpNote"),
     },
   });
   revalidatePath("/contacts");
+  revalidatePath("/dashboard");
+}
+
+export async function clearFollowUp(id: string) {
+  await prisma.contact.update({ where: { id }, data: { nextFollowUpDate: null, followUpNote: null } });
+  revalidatePath("/contacts");
+  revalidatePath("/dashboard");
 }
 
 export async function deleteContact(id: string) {

@@ -73,6 +73,23 @@ export async function deleteOpportunity(id: string) {
   revalidatePath("/opportunities");
 }
 
+export async function addEligibilityCriterion(opportunityId: string, formData: FormData) {
+  const label = str(formData, "label");
+  if (!label) return;
+  await prisma.eligibilityCriterion.create({ data: { opportunityId, label } });
+  revalidatePath("/opportunities");
+}
+
+export async function toggleEligibilityCriterion(opportunityId: string, criterionId: string, checked: boolean) {
+  await prisma.eligibilityCriterion.update({ where: { id: criterionId }, data: { checked: !checked } });
+  revalidatePath("/opportunities");
+}
+
+export async function deleteEligibilityCriterion(opportunityId: string, criterionId: string) {
+  await prisma.eligibilityCriterion.delete({ where: { id: criterionId } });
+  revalidatePath("/opportunities");
+}
+
 export async function startApplication(opportunityId: string) {
   const workspaceId = await currentWorkspaceId();
   const application = await prisma.application.create({

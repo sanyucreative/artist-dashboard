@@ -1,16 +1,23 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { getWorkspaceForUser, getDashboardData } from "@/lib/dashboard";
-import { formatShortDate } from "@/lib/format";
+import { formatShortDate, formatFullDate } from "@/lib/format";
 
 function daysAgo(date: Date) {
   return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
 }
 
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 export default async function DashboardPage() {
   const session = await auth();
   const workspace = await getWorkspaceForUser(session!.user.id);
-  const { deadlines, awaitingDecision, counts } = await getDashboardData(workspace.id);
+  const { deadlines, awaitingDecision, counts, followUpsDue } = await getDashboardData(workspace.id);
+  const today = startOfToday();
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -31,6 +38,28 @@ export default async function DashboardPage() {
           </div>
         ))}
       </section>
+
+      {followUpsDue.length > 0 && (
+        <section className="mb-8">
+          <h2 className="mb-3 text-sm font-medium text-neutral-700">Follow-ups due</h2>
+          <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
+            {followUpsDue.map((c) => {
+              const overdue = c.nextFollowUpDate! < today;
+              return (
+                <li key={c.id} className="flex items-center justify-between px-3 py-2">
+                  <Link href="/contacts" className="text-sm text-neutral-900 hover:underline">
+                    {c.name}
+                  </Link>
+                  {c.followUpNote && <span className="flex-1 px-2 text-xs text-neutral-500">{c.followUpNote}</span>}
+                  <span className={`shrink-0 text-xs ${overdue ? "text-amber-700" : "text-neutral-500"}`}>
+                    {formatFullDate(c.nextFollowUpDate!)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <section className="mb-8">
         <h2 className="mb-3 text-sm font-medium text-neutral-700">Deadlines in the next 30 days</h2>

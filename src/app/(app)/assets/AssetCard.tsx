@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { deleteAsset, updateAsset } from "./actions";
 import { AssetFields } from "./AssetFields";
@@ -28,6 +28,7 @@ export function AssetCard({
   variant?: "grid" | "list";
 }) {
   const [editing, setEditing] = useState(false);
+  const [, startTransition] = useTransition();
 
   if (editing) {
     return (
@@ -47,11 +48,13 @@ export function AssetCard({
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
               Cancel
             </button>
-            <form action={() => deleteAsset(asset.id)} className="ml-auto">
-              <button type="submit" className="text-xs text-red-600 hover:underline">
-                Delete
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={() => startTransition(() => deleteAsset(asset.id))}
+              className="ml-auto text-xs text-red-600 hover:underline"
+            >
+              Delete
+            </button>
           </div>
         </form>
       </div>

@@ -6,6 +6,7 @@ import { deleteOpportunity, startApplication, updateOpportunity } from "./action
 import { APPLICATION_STATUS_LABELS, titleCase } from "@/lib/constants";
 import { formatFullDate } from "@/lib/format";
 import { OpportunityFields } from "./OpportunityFields";
+import { EligibilityChecklist, type EligibilityCriterionData } from "./EligibilityChecklist";
 
 export type OpportunityRowData = {
   id: string;
@@ -21,6 +22,7 @@ export type OpportunityRowData = {
   isRecurring: boolean;
   recurrenceCadence: string | null;
   applications: { id: string; status: string; submittedAt: Date | null }[];
+  eligibilityCriteria: EligibilityCriterionData[];
 };
 
 function formatDeadline(date: Date | null) {
@@ -100,6 +102,7 @@ export function OpportunityRow({ opportunity }: { opportunity: OpportunityRowDat
               <p className="text-sm text-neutral-700">{opportunity.eligibilityNotes}</p>
             </div>
           )}
+          <EligibilityChecklist opportunityId={opportunity.id} criteria={opportunity.eligibilityCriteria} />
           <div>
             <p className="text-xs font-medium text-neutral-600">Past applications</p>
             {opportunity.applications.length === 0 ? (
