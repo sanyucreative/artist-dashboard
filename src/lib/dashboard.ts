@@ -12,6 +12,14 @@ export async function getWorkspaceForUser(userId: string) {
   return prisma.workspace.create({ data: { userId, name: "My practice" } });
 }
 
+export async function isWorkspaceEmpty(workspaceId: string) {
+  const [projectCount, opportunityCount] = await Promise.all([
+    prisma.project.count({ where: { workspaceId } }),
+    prisma.opportunity.count({ where: { workspaceId } }),
+  ]);
+  return projectCount === 0 && opportunityCount === 0;
+}
+
 export async function getDashboardData(workspaceId: string) {
   const now = new Date();
   const in30Days = new Date(now.getTime() + THIRTY_DAYS_MS);

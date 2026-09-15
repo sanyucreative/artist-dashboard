@@ -1,48 +1,13 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// One-time route to backfill the seeded demo data into production, since
-// NETLIFY_DB_URL is only ever resolvable at runtime inside a deployed
-// function (there's no way to pull it locally to run prisma/seed.ts
-// directly against production). Guarded by AUTH_SECRET so it's not a public
-// write endpoint. Delete this route once it's been run once.
-export async function POST(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (!token || token !== process.env.AUTH_SECRET) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.upsert({
-    where: { email: "artist@example.com" },
-    update: {},
-    create: {
-      email: "artist@example.com",
-      name: "Jordan Ellis",
-      disciplines: JSON.stringify(["visual art", "photography"]),
-      timezone: "America/Chicago",
-    },
-  });
-
-  const existingWorkspace = await prisma.workspace.findFirst({ where: { userId: user.id } });
-  const workspace = existingWorkspace
-    ? await prisma.workspace.update({
-        where: { id: existingWorkspace.id },
-        data: { name: "Jordan Ellis Studio", type: "art practice" },
-      })
-    : await prisma.workspace.create({
-        data: { userId: user.id, name: "Jordan Ellis Studio", type: "art practice" },
-      });
-
-  const existingProjects = await prisma.project.count({ where: { workspaceId: workspace.id } });
-  if (existingProjects > 0) {
-    return NextResponse.json({ skipped: true, reason: "workspace already has data", workspace: workspace.name });
-  }
-
+// Fills an empty workspace with a realistic example practice (projects,
+// opportunities, applications at each stage, CV entries, contacts) so a new
+// sign-in has something to look at instead of an all-zero dashboard.
+export async function seedDemoData(workspaceId: string) {
   const [threads, coastline] = await Promise.all([
     prisma.project.create({
       data: {
-        workspaceId: workspace.id,
+        workspaceId,
         title: "Threads We Carry",
         workingTitle: "Migration Textiles",
         status: "active",
@@ -56,7 +21,7 @@ export async function POST(req: NextRequest) {
     }),
     prisma.project.create({
       data: {
-        workspaceId: workspace.id,
+        workspaceId,
         title: "Coastline Studies",
         status: "ongoing",
         description: "An open-ended body of landscape work returned to every spring on the Gulf coast.",
@@ -104,17 +69,17 @@ export async function POST(req: NextRequest) {
   const [statement, cv, sample1, sample2] = await Promise.all([
     prisma.asset.create({
       data: {
-        workspaceId: workspace.id,
+        workspaceId,
         type: "artist_statement",
         title: "Artist statement",
         version: "2026-v3",
         notes: "Rewritten for the fellowship cycle -- leads with the textile collaboration.",
       },
     }),
-    prisma.asset.create({ data: { workspaceId: workspace.id, type: "cv", title: "CV", version: "2026-09" } }),
+    prisma.asset.create({ data: { workspaceId, type: "cv", title: "CV", version: "2026-09" } }),
     prisma.asset.create({
       data: {
-        workspaceId: workspace.id,
+        workspaceId,
         type: "work_sample",
         title: "Threads We Carry -- sample 01",
         projectId: threads.id,
@@ -123,7 +88,7 @@ export async function POST(req: NextRequest) {
     }),
     prisma.asset.create({
       data: {
-        workspaceId: workspace.id,
+        workspaceId,
         type: "work_sample",
         title: "Threads We Carry -- sample 02",
         projectId: threads.id,
@@ -135,7 +100,7 @@ export async function POST(req: NextRequest) {
   const [fellowship, residency, pastGrant] = await Promise.all([
     prisma.opportunity.create({
       data: {
-        workspaceId: workspace.id,
+        workspaceId,
         name: "Midwest Photography Fellowship",
         organization: "Midwest Arts Council",
         type: "fellowship",
@@ -151,7 +116,7 @@ export async function POST(req: NextRequest) {
     }),
     prisma.opportunity.create({
       data: {
-        workspaceId: workspace.id,
+        workspaceId,
         name: "Harbor Light Residency",
         organization: "Harbor Light Arts Center",
         type: "residency",
@@ -165,7 +130,7 @@ export async function POST(req: NextRequest) {
     }),
     prisma.opportunity.create({
       data: {
-        workspaceId: workspace.id,
+        workspaceId,
         name: "Statewide Documentary Grant",
         organization: "State Arts Board",
         type: "grant",
@@ -178,20 +143,20 @@ export async function POST(req: NextRequest) {
     }),
   ]);
 
-  const applyingApp = await prisma.application.create({
+  await prisma.application.create({
     data: {
       opportunityId: fellowship.id,
-      workspaceId: workspace.id,
+      workspaceId,
       status: "drafting",
       projects: { create: [{ projectId: threads.id }] },
       assetsUsed: { create: [{ assetId: statement.id }, { assetId: sample1.id }, { assetId: sample2.id }] },
     },
   });
 
-  const submittedApp = await prisma.application.create({
+  await prisma.application.create({
     data: {
       opportunityId: residency.id,
-      workspaceId: workspace.id,
+      workspaceId,
       status: "under_review",
       submittedAt: new Date("2026-08-20"),
       projects: { create: [{ projectId: coastline.id }] },
@@ -199,10 +164,10 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const declinedApp = await prisma.application.create({
+  await prisma.application.create({
     data: {
       opportunityId: pastGrant.id,
-      workspaceId: workspace.id,
+      workspaceId,
       status: "decision",
       submittedAt: new Date("2026-02-15"),
       decisionAt: new Date("2026-04-01"),
@@ -220,7 +185,7 @@ export async function POST(req: NextRequest) {
   await prisma.cVEntry.createMany({
     data: [
       {
-        workspaceId: workspace.id,
+        workspaceId,
         category: "exhibition",
         title: "Group show: New Documentary Voices",
         organization: "Riverside Gallery",
@@ -229,7 +194,7 @@ export async function POST(req: NextRequest) {
         isPublic: true,
       },
       {
-        workspaceId: workspace.id,
+        workspaceId,
         category: "publication",
         title: "Featured artist profile",
         organization: "Midwest Photo Journal",
@@ -242,7 +207,7 @@ export async function POST(req: NextRequest) {
   await prisma.contact.createMany({
     data: [
       {
-        workspaceId: workspace.id,
+        workspaceId,
         name: "Priya Nathan",
         organization: "Midwest Arts Council",
         role: "Program Officer",
@@ -251,7 +216,7 @@ export async function POST(req: NextRequest) {
         lastContactedAt: new Date("2026-08-01"),
       },
       {
-        workspaceId: workspace.id,
+        workspaceId,
         name: "Marcus Webb",
         organization: "Riverside Gallery",
         role: "Curator",
@@ -259,13 +224,5 @@ export async function POST(req: NextRequest) {
         relationshipType: "curator",
       },
     ],
-  });
-
-  return NextResponse.json({
-    ok: true,
-    user: user.email,
-    workspace: workspace.name,
-    projects: [threads.title, coastline.title],
-    applications: [applyingApp.id, submittedApp.id, declinedApp.id],
   });
 }

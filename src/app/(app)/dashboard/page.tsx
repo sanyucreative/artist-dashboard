@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { getWorkspaceForUser, getDashboardData } from "@/lib/dashboard";
+import { getWorkspaceForUser, getDashboardData, isWorkspaceEmpty } from "@/lib/dashboard";
 import { formatShortDate, formatFullDate } from "@/lib/format";
+import { loadDemoData } from "./actions";
 
 function daysAgo(date: Date) {
   return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
@@ -17,11 +18,29 @@ export default async function DashboardPage() {
   const session = await auth();
   const workspace = await getWorkspaceForUser(session!.user.id);
   const { deadlines, awaitingDecision, counts, followUpsDue } = await getDashboardData(workspace.id);
+  const empty = await isWorkspaceEmpty(workspace.id);
   const today = startOfToday();
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="mb-8 text-2xl font-semibold text-neutral-900">Dashboard</h1>
+
+      {empty && (
+        <section className="mb-8 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+          <p className="mb-2 text-sm text-neutral-700">
+            Nothing here yet. Load an example practice to see how projects, opportunities, and applications fit
+            together.
+          </p>
+          <form action={loadDemoData}>
+            <button
+              type="submit"
+              className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-700"
+            >
+              Load example data
+            </button>
+          </form>
+        </section>
+      )}
 
       <section className="mb-8 grid grid-cols-4 gap-3">
         {(
