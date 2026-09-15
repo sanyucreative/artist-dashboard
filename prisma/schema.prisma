@@ -117,6 +117,7 @@ model Project {
   participants Participant[]
   assets       Asset[]
   milestones   Milestone[]
+  cvEntries    CVEntry[]
   applications ApplicationProject[]
 
   createdAt DateTime @default(now())
@@ -266,8 +267,13 @@ model CVEntry {
   // set automatically when an application's outcome becomes "accepted"
   sourceApplicationId String?
   isPublic    Boolean   @default(true)
+  // Not in the spec's original CVEntry fields, but the Projects screen asks
+  // for "exhibition history" on a project's detail page -- an optional link
+  // lets exhibition/award/etc. entries surface there without a second model.
+  projectId   String?
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
 }
