@@ -1,14 +1,18 @@
-import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-const connectionString = process.env.NETLIFY_DB_URL ?? process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error("No database connection string found -- run this via `netlify dev`, or set DATABASE_URL.");
-}
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
+// One-time route to backfill the seeded demo data into production, since
+// NETLIFY_DB_URL is only ever resolvable at runtime inside a deployed
+// function (there's no way to pull it locally to run prisma/seed.ts
+// directly against production). Guarded by AUTH_SECRET so it's not a public
+// write endpoint. Delete this route once it's been run once.
+export async function POST(req: NextRequest) {
+  const token = req.headers.get("authorization")?.replace("Bearer ", "");
+  if (!token || token !== process.env.AUTH_SECRET) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
 
-async function main() {
   const user = await prisma.user.upsert({
     where: { email: "artist@example.com" },
     update: {},
@@ -20,10 +24,6 @@ async function main() {
     },
   });
 
-  // Signing in for the first time auto-creates an empty "My practice"
-  // workspace (see getWorkspaceForUser) -- reuse it instead of creating a
-  // second workspace the dashboard would never show (it always picks the
-  // first one), which is what happened the first time this ran in production.
   const existingWorkspace = await prisma.workspace.findFirst({ where: { userId: user.id } });
   const workspace = existingWorkspace
     ? await prisma.workspace.update({
@@ -31,12 +31,13 @@ async function main() {
         data: { name: "Jordan Ellis Studio", type: "art practice" },
       })
     : await prisma.workspace.create({
-        data: {
-          userId: user.id,
-          name: "Jordan Ellis Studio",
-          type: "art practice",
-        },
+        data: { userId: user.id, name: "Jordan Ellis Studio", type: "art practice" },
       });
+
+  const existingProjects = await prisma.project.count({ where: { workspaceId: workspace.id } });
+  if (existingProjects > 0) {
+    return NextResponse.json({ skipped: true, reason: "workspace already has data", workspace: workspace.name });
+  }
 
   const [threads, coastline] = await Promise.all([
     prisma.project.create({
@@ -88,18 +89,8 @@ async function main() {
 
   await prisma.milestone.createMany({
     data: [
-      {
-        projectId: threads.id,
-        title: "Print run for gallery submission",
-        dueDate: new Date("2026-10-05"),
-        status: "planned",
-      },
-      {
-        projectId: threads.id,
-        title: "Studio visit with curator",
-        dueDate: new Date("2026-09-22"),
-        status: "planned",
-      },
+      { projectId: threads.id, title: "Print run for gallery submission", dueDate: new Date("2026-10-05"), status: "planned" },
+      { projectId: threads.id, title: "Studio visit with curator", dueDate: new Date("2026-09-22"), status: "planned" },
       {
         projectId: coastline.id,
         title: "Spring shoot week",
@@ -120,14 +111,7 @@ async function main() {
         notes: "Rewritten for the fellowship cycle -- leads with the textile collaboration.",
       },
     }),
-    prisma.asset.create({
-      data: {
-        workspaceId: workspace.id,
-        type: "cv",
-        title: "CV",
-        version: "2026-09",
-      },
-    }),
+    prisma.asset.create({ data: { workspaceId: workspace.id, type: "cv", title: "CV", version: "2026-09" } }),
     prisma.asset.create({
       data: {
         workspaceId: workspace.id,
@@ -200,9 +184,7 @@ async function main() {
       workspaceId: workspace.id,
       status: "drafting",
       projects: { create: [{ projectId: threads.id }] },
-      assetsUsed: {
-        create: [{ assetId: statement.id }, { assetId: sample1.id }, { assetId: sample2.id }],
-      },
+      assetsUsed: { create: [{ assetId: statement.id }, { assetId: sample1.id }, { assetId: sample2.id }] },
     },
   });
 
@@ -279,19 +261,11 @@ async function main() {
     ],
   });
 
-  console.log("Seed complete:", {
+  return NextResponse.json({
+    ok: true,
     user: user.email,
     workspace: workspace.name,
     projects: [threads.title, coastline.title],
     applications: [applyingApp.id, submittedApp.id, declinedApp.id],
   });
 }
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
