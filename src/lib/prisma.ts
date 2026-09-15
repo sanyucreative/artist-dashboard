@@ -1,14 +1,20 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-// Local dev runs on sqlite via a driver adapter (Prisma 7 requires one --
-// there's no more implicit `url` pickup from the datasource block). Swapping
-// to Postgres for deploy means installing @prisma/adapter-pg, changing the
-// datasource provider in schema.prisma, and constructing PrismaPg here
-// instead -- the rest of the app's Prisma usage doesn't change.
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL ?? "file:./dev.db",
-});
+// Netlify injects NETLIFY_DB_URL (the exact name @netlify/database itself
+// reads) for both `netlify dev` locally and the deployed site in
+// production -- a real local Postgres branch in dev, the managed Neon
+// database in prod. DATABASE_URL is a manual-override fallback (e.g. a
+// plain `next dev` run, or pointing at a different Postgres entirely).
+//
+// This must NOT throw when the string is missing: `next build` imports
+// every route module (even dynamic ones) to collect page data, with no
+// database available and no query about to run, so an eager throw here
+// fails the build itself. A missing string only becomes a real problem
+// when a query actually executes, which is what surfaces then instead.
+const connectionString = process.env.NETLIFY_DB_URL ?? process.env.DATABASE_URL ?? "";
+
+const adapter = new PrismaPg({ connectionString });
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

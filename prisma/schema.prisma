@@ -1,9 +1,12 @@
-// Artist CRM -- v1 schema (build spec phases 1-7).
-// Local dev uses sqlite (see prisma7.config.ts / .env); swapping to Postgres
-// for deploy is a one-line datasource change, not a schema rewrite. sqlite
-// has no native enum or scalar-list types, so enum-like and multi-value
-// fields below are plain String / Json instead of Prisma `enum` / `Type[]`
-// -- documented inline with their allowed values.
+// Artist CRM -- v1 schema (build spec phases 1-10, plus two competitor-
+// derived additions). Postgres in both dev and prod: local dev runs against
+// a real local Postgres branch Netlify CLI provisions automatically via
+// `netlify dev` (NETLIFY_DB_URL), production against the Netlify-managed
+// Neon database provisioned on deploy (same env var name). Started on
+// sqlite for local-only dev before this was deployed; kept the schema
+// enum-free (plain String fields, allowed values documented inline) and
+// array-free (JSON-stringified fields) from that period since it costs
+// nothing on Postgres either and avoids ever being tied to one engine.
 
 generator client {
   provider = "prisma-client"
@@ -11,7 +14,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // ---------- Auth (NextAuth / Auth.js v5, email magic link) ----------
