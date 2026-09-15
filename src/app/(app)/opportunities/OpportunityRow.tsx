@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { deleteOpportunity, startApplication, updateOpportunity } from "./actions";
 import { APPLICATION_STATUS_LABELS, titleCase } from "@/lib/constants";
+import { formatFullDate } from "@/lib/format";
 import { OpportunityFields } from "./OpportunityFields";
 
 export type OpportunityRowData = {
@@ -22,9 +23,9 @@ export type OpportunityRowData = {
   applications: { id: string; status: string; submittedAt: Date | null }[];
 };
 
-function formatDate(date: Date | null) {
+function formatDeadline(date: Date | null) {
   if (!date) return "no deadline";
-  return new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return formatFullDate(date);
 }
 
 export function OpportunityRow({ opportunity }: { opportunity: OpportunityRowData }) {
@@ -66,7 +67,7 @@ export function OpportunityRow({ opportunity }: { opportunity: OpportunityRowDat
             </span>
           </div>
           <p className="text-xs text-neutral-500">
-            {opportunity.organization ?? "No organization"} · {formatDate(opportunity.deadline)}
+            {opportunity.organization ?? "No organization"} · {formatDeadline(opportunity.deadline)}
           </p>
         </button>
         <div className="flex shrink-0 items-center gap-2">

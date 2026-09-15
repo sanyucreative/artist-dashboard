@@ -90,6 +90,8 @@ export const VERSIONED_ASSET_TYPES = new Set(["artist_statement", "bio"]);
 
 export const CV_CATEGORIES = ["exhibition", "award", "residency", "publication", "talk", "press"] as const;
 
+export const RELATIONSHIP_TYPES = ["funder", "curator", "gallerist", "collaborator", "mentor", "press"] as const;
+
 export function titleCase(s: string) {
   return s
     .split("_")

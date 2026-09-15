@@ -119,6 +119,7 @@ model Project {
   milestones   Milestone[]
   cvEntries    CVEntry[]
   applications ApplicationProject[]
+  contacts     ContactProject[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -176,6 +177,7 @@ model Opportunity {
 
   workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   applications Application[]
+  contacts     ContactOpportunity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -294,6 +296,31 @@ model Contact {
   lastContactedAt DateTime?
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  opportunities ContactOpportunity[]
+  projects      ContactProject[]
 
   createdAt DateTime @default(now())
+}
+
+// Not in the spec's own Contact data model, but the Contacts screen asks to
+// "link contacts to opportunities and projects" -- same kind of gap as
+// CVEntry/project above, filled the same way with a small join table.
+model ContactOpportunity {
+  contactId     String
+  opportunityId String
+
+  contact     Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, opportunityId])
+}
+
+model ContactProject {
+  contactId String
+  projectId String
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, projectId])
 }

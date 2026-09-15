@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { addExhibition, deleteExhibition } from "../actions";
 import { CV_CATEGORIES, titleCase } from "@/lib/constants";
+import { formatFullDate } from "@/lib/format";
 
 type Entry = {
   id: string;
@@ -32,7 +33,7 @@ export function ExhibitionHistory({ projectId, entries }: { projectId: string; e
                   {titleCase(e.category)}
                 </span>
                 <p className="text-xs text-neutral-500">
-                  {[e.organization, e.location, e.date && new Date(e.date).toLocaleDateString()]
+                  {[e.organization, e.location, e.date && formatFullDate(e.date)]
                     .filter(Boolean)
                     .join(" · ")}
                 </p>

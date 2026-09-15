@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { addMilestone, deleteMilestone, setMilestoneStatus } from "../actions";
 import { MILESTONE_STATUSES, titleCase } from "@/lib/constants";
+import { formatFullDate } from "@/lib/format";
 
 type Milestone = {
   id: string;
@@ -28,7 +29,7 @@ export function MilestoneList({ projectId, milestones }: { projectId: string; mi
               <div>
                 <span className="text-sm text-neutral-900">{m.title}</span>
                 {m.dueDate && (
-                  <span className="ml-2 text-xs text-neutral-500">{new Date(m.dueDate).toLocaleDateString()}</span>
+                  <span className="ml-2 text-xs text-neutral-500">{formatFullDate(m.dueDate)}</span>
                 )}
               </div>
               <div className="flex items-center gap-2">

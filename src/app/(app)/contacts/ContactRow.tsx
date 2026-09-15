@@ -1,0 +1,152 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { deleteContact, toggleContactOpportunity, toggleContactProject, updateContact } from "./actions";
+import { ContactFields } from "./ContactFields";
+import { titleCase } from "@/lib/constants";
+
+export type ContactData = {
+  id: string;
+  name: string;
+  organization: string | null;
+  role: string | null;
+  email: string | null;
+  phone: string | null;
+  relationshipType: string | null;
+  notes: string | null;
+  lastContactedAt: Date | null;
+  opportunities: { opportunityId: string }[];
+  projects: { projectId: string }[];
+};
+
+export function ContactRow({
+  contact,
+  opportunities,
+  projects,
+}: {
+  contact: ContactData;
+  opportunities: { id: string; name: string }[];
+  projects: { id: string; title: string }[];
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const linkedOpportunityIds = new Set(contact.opportunities.map((o) => o.opportunityId));
+  const linkedProjectIds = new Set(contact.projects.map((p) => p.projectId));
+
+  if (editing) {
+    return (
+      <li className="px-4 py-4">
+        <form
+          action={async (formData) => {
+            await updateContact(contact.id, formData);
+            setEditing(false);
+          }}
+          className="grid grid-cols-2 gap-3"
+        >
+          <ContactFields contact={contact} />
+          <div className="col-span-2 flex items-center gap-2">
+            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+              Save
+            </button>
+            <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
+              Cancel
+            </button>
+            <form action={() => deleteContact(contact.id)} className="ml-auto">
+              <button type="submit" className="text-xs text-red-600 hover:underline">
+                Delete
+              </button>
+            </form>
+          </div>
+        </form>
+      </li>
+    );
+  }
+
+  return (
+    <li className="px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <button type="button" className="flex-1 text-left" onClick={() => setExpanded((v) => !v)}>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-neutral-900">{contact.name}</span>
+            {contact.relationshipType && (
+              <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">
+                {titleCase(contact.relationshipType)}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-neutral-500">
+            {[contact.organization, contact.role].filter(Boolean).join(" · ") || "No organization"}
+          </p>
+        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {contact.email && (
+            <a href={`mailto:${contact.email}`} className="text-xs text-neutral-500 hover:underline">
+              Email
+            </a>
+          )}
+          <button type="button" onClick={() => setEditing(true)} className="text-xs text-neutral-500">
+            Edit
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="mt-3 grid grid-cols-2 gap-4 border-t border-neutral-100 pt-3">
+          <div>
+            <p className="mb-1 text-xs font-medium text-neutral-600">Linked opportunities</p>
+            {opportunities.length === 0 ? (
+              <p className="text-xs text-neutral-400">No opportunities yet.</p>
+            ) : (
+              <ul className="space-y-1">
+                {opportunities.map((o) => {
+                  const linked = linkedOpportunityIds.has(o.id);
+                  return (
+                    <li key={o.id}>
+                      <label className="flex items-center gap-2 text-xs text-neutral-700">
+                        <input
+                          type="checkbox"
+                          checked={linked}
+                          disabled={isPending}
+                          onChange={() => startTransition(() => toggleContactOpportunity(contact.id, o.id, linked))}
+                        />
+                        {o.name}
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          <div>
+            <p className="mb-1 text-xs font-medium text-neutral-600">Linked projects</p>
+            {projects.length === 0 ? (
+              <p className="text-xs text-neutral-400">No projects yet.</p>
+            ) : (
+              <ul className="space-y-1">
+                {projects.map((p) => {
+                  const linked = linkedProjectIds.has(p.id);
+                  return (
+                    <li key={p.id}>
+                      <label className="flex items-center gap-2 text-xs text-neutral-700">
+                        <input
+                          type="checkbox"
+                          checked={linked}
+                          disabled={isPending}
+                          onChange={() => startTransition(() => toggleContactProject(contact.id, p.id, linked))}
+                        />
+                        {p.title}
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          {contact.notes && <p className="col-span-2 text-xs text-neutral-500">{contact.notes}</p>}
+        </div>
+      )}
+    </li>
+  );
+}

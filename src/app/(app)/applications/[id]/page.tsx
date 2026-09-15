@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { formatFullDate } from "@/lib/format";
 import { StatusStepper } from "./StatusStepper";
 import { ProjectLinker, AssetLinker } from "./LinkLists";
 import { OutcomeForm } from "./OutcomeForm";
@@ -37,7 +38,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
       <p className="mb-6 text-sm text-neutral-500">
         {application.opportunity.organization ?? "No organization"}
         {application.opportunity.deadline && (
-          <> · deadline {new Date(application.opportunity.deadline).toLocaleDateString()}</>
+          <> · deadline {formatFullDate(application.opportunity.deadline)}</>
         )}
       </p>
 

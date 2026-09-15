@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { getWorkspaceForUser, getDashboardData } from "@/lib/dashboard";
+import { formatShortDate } from "@/lib/format";
 
 function daysAgo(date: Date) {
   return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
-}
-
-function formatDate(date: Date) {
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export default async function DashboardPage() {
@@ -52,7 +49,7 @@ export default async function DashboardPage() {
                   <span className="text-sm text-neutral-900">{d.title}</span>
                   {d.meta && <span className="ml-2 text-xs text-neutral-500">{d.meta}</span>}
                 </div>
-                <span className="ml-3 shrink-0 text-xs text-neutral-500">{formatDate(d.date)}</span>
+                <span className="ml-3 shrink-0 text-xs text-neutral-500">{formatShortDate(d.date)}</span>
               </li>
             ))}
           </ul>
