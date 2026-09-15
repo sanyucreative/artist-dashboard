@@ -2,18 +2,99 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #37352f;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* Notion's own UI palette: a warm near-black text color (never pure
+     black), a soft off-white sidebar, and hairline borders rather than
+     shadows. Overriding the neutral scale here means every existing
+     neutral-toned text/border/background class across the app picks it
+     up without touching each file. */
+  --color-neutral-50: #fbfbfa;
+  --color-neutral-100: #f7f6f3;
+  --color-neutral-200: #e9e9e7;
+  --color-neutral-300: #dfdfde;
+  --color-neutral-400: #c4c4c2;
+  --color-neutral-500: #9b9a97;
+  --color-neutral-600: #787774;
+  --color-neutral-700: #5f5e5b;
+  --color-neutral-800: #454440;
+  --color-neutral-900: #37352f;
+
+  --color-blue-500: #2383e2;
+  --color-blue-600: #0b6bcb;
+
+  --font-sans:
+    ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif,
+    "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Notion-style colored tags (status/type labels) -- soft tint background,
+   darker text of the same hue, no border. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 12px;
+  line-height: 1.6;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tag-gray {
+  background: rgba(155, 154, 151, 0.2);
+  color: #5f5e5b;
+}
+.tag-brown {
+  background: rgba(140, 46, 0, 0.12);
+  color: #64473a;
+}
+.tag-orange {
+  background: rgba(217, 115, 13, 0.16);
+  color: #a35a1e;
+}
+.tag-yellow {
+  background: rgba(223, 171, 1, 0.2);
+  color: #91740a;
+}
+.tag-green {
+  background: rgba(68, 131, 97, 0.16);
+  color: #3a7a56;
+}
+.tag-blue {
+  background: rgba(35, 131, 226, 0.14);
+  color: #0b6bcb;
+}
+.tag-red {
+  background: rgba(224, 62, 62, 0.14);
+  color: #c22a2a;
+}
+.tag-purple {
+  background: rgba(144, 101, 176, 0.18);
+  color: #7c4fa8;
+}
+.tag-pink {
+  background: rgba(225, 92, 158, 0.16);
+  color: #b8447c;
+}
+
+/* Notion's callout block -- used for the demo-data empty state. */
+.callout {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: 6px;
+  padding: 14px 16px;
 }

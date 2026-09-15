@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateProject, deleteProject } from "../actions";
 import { ProjectFields } from "../ProjectFields";
-import { titleCase } from "@/lib/constants";
+import { titleCase, PROJECT_STATUS_TAG_COLORS } from "@/lib/constants";
 
 type ProjectData = {
   id: string;
@@ -59,12 +59,10 @@ export function ProjectHeader({ project }: { project: ProjectData }) {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold text-neutral-900">{project.title}</h1>
-            <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">
+            <span className={`tag ${PROJECT_STATUS_TAG_COLORS[project.status] ?? "tag-gray"}`}>
               {titleCase(project.status)}
             </span>
-            {project.isOngoing && (
-              <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[11px] text-blue-700">Ongoing</span>
-            )}
+            {project.isOngoing && <span className="tag tag-blue">Ongoing</span>}
           </div>
           {project.workingTitle && <p className="text-sm text-neutral-500">{project.workingTitle}</p>}
         </div>
@@ -76,7 +74,7 @@ export function ProjectHeader({ project }: { project: ProjectData }) {
       {themes.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {themes.map((t) => (
-            <span key={t} className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">
+            <span key={t} className="tag tag-gray">
               {t}
             </span>
           ))}

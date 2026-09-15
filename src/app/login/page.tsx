@@ -4,6 +4,9 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
       <div>
+        <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-neutral-800 text-base text-white">
+          🎨
+        </span>
         <h1 className="text-xl font-semibold text-neutral-900">Artist Dashboard</h1>
         <p className="mt-1 text-sm text-neutral-500">
           Sign in with your email — we&apos;ll send a link, no password needed.
@@ -21,7 +24,7 @@ export default function LoginPage() {
           name="email"
           required
           placeholder="you@example.com"
-          className="rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-500 focus:outline-none"
+          className="rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
         />
         <button
           type="submit"

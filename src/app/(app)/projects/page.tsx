@@ -2,7 +2,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser } from "@/lib/dashboard";
-import { titleCase } from "@/lib/constants";
+import { titleCase, PROJECT_STATUS_TAG_COLORS } from "@/lib/constants";
 import { NewProjectForm } from "./NewProjectForm";
 
 export default async function ProjectsPage() {
@@ -30,11 +30,11 @@ export default async function ProjectsPage() {
             <Link
               key={p.id}
               href={`/projects/${p.id}`}
-              className="rounded-lg border border-neutral-200 p-4 hover:border-neutral-400"
+              className="rounded-lg border border-neutral-200 p-4 hover:bg-black/[.02]"
             >
               <div className="mb-1 flex items-center gap-2">
                 <span className="text-sm font-medium text-neutral-900">{p.title}</span>
-                <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">
+                <span className={`tag ${PROJECT_STATUS_TAG_COLORS[p.status] ?? "tag-gray"}`}>
                   {titleCase(p.status)}
                 </span>
               </div>

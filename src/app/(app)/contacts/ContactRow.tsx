@@ -85,12 +85,12 @@ export function ContactRow({
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-neutral-900">{contact.name}</span>
             {contact.relationshipType && (
-              <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">
+              <span className="tag tag-gray">
                 {titleCase(contact.relationshipType)}
               </span>
             )}
             {tags.map((tag) => (
-              <span key={tag} className="rounded bg-blue-50 px-1.5 py-0.5 text-[11px] text-blue-700">
+              <span key={tag} className="tag tag-blue">
                 {tag}
               </span>
             ))}

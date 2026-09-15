@@ -92,6 +92,42 @@ export const CV_CATEGORIES = ["exhibition", "award", "residency", "publication",
 
 export const RELATIONSHIP_TYPES = ["funder", "curator", "gallerist", "collaborator", "mentor", "press"] as const;
 
+// Notion-style tag colors, chosen for meaning rather than sequence: warm
+// hues read as "needs attention," green/blue as settled, gray as neutral.
+export const OPPORTUNITY_TYPE_TAG_COLORS: Record<string, string> = {
+  grant: "tag-green",
+  residency: "tag-blue",
+  fellowship: "tag-purple",
+  exhibition_call: "tag-orange",
+  commission: "tag-yellow",
+  mentorship: "tag-brown",
+  award: "tag-pink",
+};
+
+export const APPLICATION_STATUS_TAG_COLORS: Record<string, string> = {
+  researching: "tag-gray",
+  drafting: "tag-gray",
+  submitted: "tag-blue",
+  under_review: "tag-yellow",
+  decision: "tag-green",
+};
+
+export const OUTCOME_TAG_COLORS: Record<string, string> = {
+  accepted: "tag-green",
+  declined: "tag-red",
+  ineligible: "tag-gray",
+  withdrawn: "tag-gray",
+  waitlisted: "tag-yellow",
+  no_response: "tag-gray",
+};
+
+export const PROJECT_STATUS_TAG_COLORS: Record<string, string> = {
+  active: "tag-green",
+  ongoing: "tag-blue",
+  dormant: "tag-gray",
+  complete: "tag-gray",
+};
+
 export function titleCase(s: string) {
   return s
     .split("_")

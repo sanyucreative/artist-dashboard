@@ -29,7 +29,7 @@ export function ExhibitionHistory({ projectId, entries }: { projectId: string; e
             <li key={e.id} className="flex items-center justify-between gap-2 rounded-md border border-neutral-200 p-2.5">
               <div>
                 <span className="text-sm text-neutral-900">{e.title}</span>
-                <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">
+                <span className="ml-2 tag tag-gray">
                   {titleCase(e.category)}
                 </span>
                 <p className="text-xs text-neutral-500">

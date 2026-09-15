@@ -57,10 +57,10 @@ export function CVEntryRow({ entry }: { entry: CVEntryData }) {
       <div>
         <span className="text-sm text-neutral-900">{entry.title}</span>
         {entry.sourceApplicationId && (
-          <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] text-blue-700">auto</span>
+          <span className="ml-2 tag tag-blue">auto</span>
         )}
         {!entry.isPublic && (
-          <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">hidden from export</span>
+          <span className="ml-2 tag tag-gray">hidden from export</span>
         )}
         <p className="text-xs text-neutral-500">
           {[entry.organization, entry.location, entry.date && dateYearUTC(entry.date)]

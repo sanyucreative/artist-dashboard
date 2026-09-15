@@ -78,7 +78,7 @@ export function AssetCard({
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-sm font-medium text-neutral-900">{asset.title}</span>
-          <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">
+          <span className="tag tag-gray">
             {ASSET_TYPE_LABELS[asset.type] ?? asset.type}
           </span>
           {asset.version && <span className="text-xs text-neutral-400">{asset.version}</span>}

@@ -22,24 +22,29 @@ export default async function DashboardPage() {
   const today = startOfToday();
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-8 text-2xl font-semibold text-neutral-900">Dashboard</h1>
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
+      <h1 className="mb-8 flex items-center gap-2 text-[28px] font-semibold tracking-tight text-neutral-900">
+        <span>🏠</span> Dashboard
+      </h1>
 
       {empty && (
-        <section className="mb-8 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <p className="mb-2 text-sm text-neutral-700">
-            Nothing here yet. Load an example practice to see how projects, opportunities, and applications fit
-            together.
-          </p>
-          <form action={loadDemoData}>
-            <button
-              type="submit"
-              className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-700"
-            >
-              Load example data
-            </button>
-          </form>
-        </section>
+        <div className="callout mb-8">
+          <span className="text-base">💡</span>
+          <div className="flex flex-1 items-center justify-between gap-4">
+            <p className="text-sm text-neutral-700">
+              Nothing here yet. Load an example practice to see how projects, opportunities, and applications fit
+              together.
+            </p>
+            <form action={loadDemoData}>
+              <button
+                type="submit"
+                className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-neutral-700"
+              >
+                Load example data
+              </button>
+            </form>
+          </div>
+        </div>
       )}
 
       <section className="mb-8 grid grid-cols-4 gap-3">
@@ -65,7 +70,7 @@ export default async function DashboardPage() {
             {followUpsDue.map((c) => {
               const overdue = c.nextFollowUpDate! < today;
               return (
-                <li key={c.id} className="flex items-center justify-between px-3 py-2">
+                <li key={c.id} className="flex items-center justify-between px-3 py-2 hover:bg-black/[.02]">
                   <Link href="/contacts" className="text-sm text-neutral-900 hover:underline">
                     {c.name}
                   </Link>
@@ -87,7 +92,7 @@ export default async function DashboardPage() {
         ) : (
           <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
             {deadlines.map((d) => (
-              <li key={d.id} className="flex items-center justify-between px-3 py-2">
+              <li key={d.id} className="flex items-center justify-between px-3 py-2 hover:bg-black/[.02]">
                 <div>
                   <span
                     className={`mr-2 inline-block h-2 w-2 rounded-full ${
@@ -111,7 +116,7 @@ export default async function DashboardPage() {
         ) : (
           <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
             {awaitingDecision.map((a) => (
-              <li key={a.id} className="flex items-center justify-between px-3 py-2">
+              <li key={a.id} className="flex items-center justify-between px-3 py-2 hover:bg-black/[.02]">
                 <Link href={`/applications/${a.id}`} className="text-sm text-neutral-900 hover:underline">
                   {a.opportunity.name}
                 </Link>

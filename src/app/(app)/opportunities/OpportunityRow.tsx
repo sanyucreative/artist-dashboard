@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { deleteOpportunity, startApplication, updateOpportunity } from "./actions";
-import { APPLICATION_STATUS_LABELS, titleCase } from "@/lib/constants";
+import { APPLICATION_STATUS_LABELS, OPPORTUNITY_TYPE_TAG_COLORS, titleCase } from "@/lib/constants";
 import { formatFullDate } from "@/lib/format";
 import { OpportunityFields } from "./OpportunityFields";
 import { EligibilityChecklist, type EligibilityCriterionData } from "./EligibilityChecklist";
@@ -64,7 +64,7 @@ export function OpportunityRow({ opportunity }: { opportunity: OpportunityRowDat
         <button type="button" className="flex-1 text-left" onClick={() => setExpanded((v) => !v)}>
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-neutral-900">{opportunity.name}</span>
-            <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">
+            <span className={`tag ${OPPORTUNITY_TYPE_TAG_COLORS[opportunity.type] ?? "tag-gray"}`}>
               {titleCase(opportunity.type)}
             </span>
           </div>
