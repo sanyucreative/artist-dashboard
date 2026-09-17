@@ -14,6 +14,7 @@ export function OpportunityFields({
     type: string;
     url: string | null;
     deadline: Date | null;
+    notifyAt: Date | null;
     feeAmount: number | null;
     awardAmount: number | null;
     discipline: string | null;
@@ -53,6 +54,10 @@ export function OpportunityFields({
       <label className={label}>
         Deadline
         <input type="date" name="deadline" defaultValue={toDateInputValue(o?.deadline)} className={input} />
+      </label>
+      <label className={label}>
+        Remind me on
+        <input type="date" name="notifyAt" defaultValue={toDateInputValue(o?.notifyAt)} className={input} />
       </label>
       <label className={label}>
         URL

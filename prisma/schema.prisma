@@ -170,6 +170,9 @@ model Opportunity {
   url         String?
   deadline    DateTime?
   notifyAt    DateTime?
+  // Set once the deadline reminder email has actually gone out, so the
+  // scheduled reminder job doesn't re-send it every day after notifyAt passes.
+  notifiedAt  DateTime?
   feeAmount   Float?
   awardAmount Float?
   discipline  String?

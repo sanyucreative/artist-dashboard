@@ -15,6 +15,7 @@ export type OpportunityRowData = {
   type: string;
   url: string | null;
   deadline: Date | null;
+  notifyAt: Date | null;
   feeAmount: number | null;
   awardAmount: number | null;
   discipline: string | null;

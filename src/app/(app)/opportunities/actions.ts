@@ -37,6 +37,7 @@ export async function createOpportunity(formData: FormData) {
       type: str(formData, "type") ?? "grant",
       url: str(formData, "url"),
       deadline: dateVal(formData, "deadline"),
+      notifyAt: dateVal(formData, "notifyAt"),
       feeAmount: num(formData, "feeAmount"),
       awardAmount: num(formData, "awardAmount"),
       discipline: str(formData, "discipline"),
@@ -57,6 +58,11 @@ export async function updateOpportunity(id: string, formData: FormData) {
       type: str(formData, "type") ?? "grant",
       url: str(formData, "url"),
       deadline: dateVal(formData, "deadline"),
+      // Reset notifiedAt whenever the reminder date changes, so moving it
+      // forward (or setting one for the first time) re-arms the reminder
+      // instead of staying silenced by a previous send.
+      notifyAt: dateVal(formData, "notifyAt"),
+      notifiedAt: null,
       feeAmount: num(formData, "feeAmount"),
       awardAmount: num(formData, "awardAmount"),
       discipline: str(formData, "discipline"),
