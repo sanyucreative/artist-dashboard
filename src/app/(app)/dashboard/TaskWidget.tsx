@@ -6,7 +6,7 @@ import { createTask, toggleTask, deleteTask } from "./taskActions";
 
 export type TaskData = { id: string; title: string; done: boolean };
 
-export function TaskWidget({ tasks }: { tasks: TaskData[] }) {
+export function TaskWidget({ tasks, categoryId }: { tasks: TaskData[]; categoryId: string | null }) {
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
   const [pending, startTransition] = useTransition();
@@ -20,7 +20,7 @@ export function TaskWidget({ tasks }: { tasks: TaskData[] }) {
     }
     setTitle("");
     startTransition(async () => {
-      await createTask(value);
+      await createTask(value, categoryId);
       inputRef.current?.focus();
     });
   }

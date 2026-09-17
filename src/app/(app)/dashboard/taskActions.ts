@@ -11,13 +11,13 @@ async function currentWorkspaceId() {
   return workspace.id;
 }
 
-export async function createTask(title: string) {
+export async function createTask(title: string, categoryId: string | null) {
   const trimmed = title.trim();
   if (!trimmed) return;
   const workspaceId = await currentWorkspaceId();
-  const last = await prisma.task.findFirst({ where: { workspaceId }, orderBy: { position: "desc" } });
+  const last = await prisma.task.findFirst({ where: { workspaceId, categoryId }, orderBy: { position: "desc" } });
   await prisma.task.create({
-    data: { workspaceId, title: trimmed, position: (last?.position ?? -1) + 1 },
+    data: { workspaceId, categoryId, title: trimmed, position: (last?.position ?? -1) + 1 },
   });
   revalidatePath("/dashboard");
 }
@@ -29,5 +29,16 @@ export async function toggleTask(id: string, done: boolean) {
 
 export async function deleteTask(id: string) {
   await prisma.task.delete({ where: { id } });
+  revalidatePath("/dashboard");
+}
+
+export async function createTaskCategory(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const workspaceId = await currentWorkspaceId();
+  const last = await prisma.taskCategory.findFirst({ where: { workspaceId }, orderBy: { position: "desc" } });
+  await prisma.taskCategory.create({
+    data: { workspaceId, name: trimmed, position: (last?.position ?? -1) + 1 },
+  });
   revalidatePath("/dashboard");
 }

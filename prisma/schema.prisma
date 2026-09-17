@@ -86,16 +86,34 @@ model Workspace {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  projects      Project[]
-  opportunities Opportunity[]
-  applications  Application[]
-  assets        Asset[]
-  cvEntries     CVEntry[]
-  contacts      Contact[]
-  tasks         Task[]
+  projects       Project[]
+  opportunities  Opportunity[]
+  applications   Application[]
+  assets         Asset[]
+  cvEntries      CVEntry[]
+  contacts       Contact[]
+  tasks          Task[]
+  taskCategories TaskCategory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// A user-defined grouping of tasks -- each one renders as its own widget on
+// the dashboard, the same as Overview/Deadlines/etc. Tasks with no category
+// (categoryId null) are legacy rows from before categories existed, or a
+// brand-new workspace that hasn't made one yet; the dashboard shows those
+// under a default "Tasks" widget rather than requiring one to exist.
+model TaskCategory {
+  id          String @id @default(cuid())
+  workspaceId String
+  name        String
+  position    Int    @default(0)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+
+  createdAt DateTime @default(now())
 }
 
 // A lightweight to-do, scoped to the workspace rather than any one project
@@ -103,11 +121,13 @@ model Workspace {
 model Task {
   id          String   @id @default(cuid())
   workspaceId String
+  categoryId  String?
   title       String
   done        Boolean  @default(false)
   position    Int      @default(0)
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  category  TaskCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
