@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { LayoutDashboard, Lightbulb, LayoutGrid, Inbox, CalendarClock, Hourglass } from "lucide-react";
 import { auth } from "@/auth";
 import { getWorkspaceForUser, getDashboardData, isWorkspaceEmpty } from "@/lib/dashboard";
 import { formatShortDate, formatFullDate } from "@/lib/format";
 import { loadDemoData } from "./actions";
+import { DashboardWidgets, type Widget } from "./DashboardWidgets";
 
 function daysAgo(date: Date) {
   return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
@@ -21,51 +23,45 @@ export default async function DashboardPage() {
   const empty = await isWorkspaceEmpty(workspace.id);
   const today = startOfToday();
 
-  return (
-    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
-      <h1 className="mb-8 flex items-center gap-2 text-[28px] font-semibold tracking-tight text-neutral-900">
-        <span>🏠</span> Dashboard
-      </h1>
-
-      {empty && (
-        <div className="callout mb-8">
-          <span className="text-base">💡</span>
-          <div className="flex flex-1 items-center justify-between gap-4">
-            <p className="text-sm text-neutral-700">
-              Nothing here yet. Load an example practice to see how projects, opportunities, and applications fit
-              together.
-            </p>
-            <form action={loadDemoData}>
-              <button
-                type="submit"
-                className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-neutral-700"
-              >
-                Load example data
-              </button>
-            </form>
-          </div>
+  const widgets: Widget[] = [
+    {
+      id: "stats",
+      header: (
+        <>
+          <LayoutGrid size={15} strokeWidth={2} className="text-neutral-500" />
+          <h2 className="text-sm font-medium text-neutral-700">Overview</h2>
+        </>
+      ),
+      content: (
+        <div className="grid grid-cols-4 gap-3">
+          {(
+            [
+              ["Submitted", counts.submitted],
+              ["Accepted", counts.accepted],
+              ["Declined", counts.declined],
+              ["Pending", counts.pending],
+            ] as const
+          ).map(([label, value]) => (
+            <div key={label} className="rounded-lg border border-neutral-200 p-3">
+              <p className="text-xs text-neutral-500">{label}</p>
+              <p className="text-xl font-semibold text-neutral-900">{value}</p>
+            </div>
+          ))}
         </div>
-      )}
-
-      <section className="mb-8 grid grid-cols-4 gap-3">
-        {(
-          [
-            ["Submitted", counts.submitted],
-            ["Accepted", counts.accepted],
-            ["Declined", counts.declined],
-            ["Pending", counts.pending],
-          ] as const
-        ).map(([label, value]) => (
-          <div key={label} className="rounded-lg border border-neutral-200 p-3">
-            <p className="text-xs text-neutral-500">{label}</p>
-            <p className="text-xl font-semibold text-neutral-900">{value}</p>
-          </div>
-        ))}
-      </section>
-
-      {followUpsDue.length > 0 && (
-        <section className="mb-8">
-          <h2 className="mb-3 text-sm font-medium text-neutral-700">Follow-ups due</h2>
+      ),
+    },
+    {
+      id: "followups",
+      header: (
+        <>
+          <Inbox size={15} strokeWidth={2} className="text-neutral-500" />
+          <h2 className="text-sm font-medium text-neutral-700">Follow-ups due</h2>
+        </>
+      ),
+      content:
+        followUpsDue.length === 0 ? (
+          <p className="text-sm text-neutral-500">No follow-ups due.</p>
+        ) : (
           <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
             {followUpsDue.map((c) => {
               const overdue = c.nextFollowUpDate! < today;
@@ -82,12 +78,18 @@ export default async function DashboardPage() {
               );
             })}
           </ul>
-        </section>
-      )}
-
-      <section className="mb-8">
-        <h2 className="mb-3 text-sm font-medium text-neutral-700">Deadlines in the next 30 days</h2>
-        {deadlines.length === 0 ? (
+        ),
+    },
+    {
+      id: "deadlines",
+      header: (
+        <>
+          <CalendarClock size={15} strokeWidth={2} className="text-neutral-500" />
+          <h2 className="text-sm font-medium text-neutral-700">Deadlines in the next 30 days</h2>
+        </>
+      ),
+      content:
+        deadlines.length === 0 ? (
           <p className="text-sm text-neutral-500">Nothing due in the next 30 days.</p>
         ) : (
           <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
@@ -106,12 +108,18 @@ export default async function DashboardPage() {
               </li>
             ))}
           </ul>
-        )}
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-sm font-medium text-neutral-700">Awaiting a decision</h2>
-        {awaitingDecision.length === 0 ? (
+        ),
+    },
+    {
+      id: "awaiting",
+      header: (
+        <>
+          <Hourglass size={15} strokeWidth={2} className="text-neutral-500" />
+          <h2 className="text-sm font-medium text-neutral-700">Awaiting a decision</h2>
+        </>
+      ),
+      content:
+        awaitingDecision.length === 0 ? (
           <p className="text-sm text-neutral-500">Nothing waiting on a response.</p>
         ) : (
           <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
@@ -126,8 +134,37 @@ export default async function DashboardPage() {
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        ),
+    },
+  ];
+
+  return (
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
+      <h1 className="mb-8 flex items-center gap-2 text-[28px] font-semibold tracking-tight text-neutral-900">
+        <LayoutDashboard size={26} strokeWidth={2} /> Dashboard
+      </h1>
+
+      {empty && (
+        <div className="callout mb-8">
+          <Lightbulb size={16} strokeWidth={2} className="mt-0.5 shrink-0 text-neutral-500" />
+          <div className="flex flex-1 items-center justify-between gap-4">
+            <p className="text-sm text-neutral-700">
+              Nothing here yet. Load an example practice to see how projects, opportunities, and applications fit
+              together.
+            </p>
+            <form action={loadDemoData}>
+              <button
+                type="submit"
+                className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-neutral-700"
+              >
+                Load example data
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <DashboardWidgets widgets={widgets} />
     </main>
   );
 }

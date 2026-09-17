@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { Menu } from "lucide-react";
 
 export function AppShell({ sidebar, children }: { sidebar: React.ReactNode; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -19,7 +20,7 @@ export function AppShell({ sidebar, children }: { sidebar: React.ReactNode; chil
         aria-label="Open menu"
         className="fixed top-3 left-3 z-20 flex h-9 w-9 items-center justify-center rounded-md border border-neutral-200 bg-white text-neutral-700 shadow-sm md:hidden"
       >
-        ☰
+        <Menu size={18} strokeWidth={2} />
       </button>
 
       {open && (

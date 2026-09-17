@@ -5,24 +5,22 @@ function toDateInputValue(date: Date | null | undefined) {
   return new Date(date).toISOString().slice(0, 10);
 }
 
-export function OpportunityFields({
-  opportunity,
-}: {
-  opportunity?: {
-    name: string;
-    organization: string | null;
-    type: string;
-    url: string | null;
-    deadline: Date | null;
-    notifyAt: Date | null;
-    feeAmount: number | null;
-    awardAmount: number | null;
-    discipline: string | null;
-    eligibilityNotes: string | null;
-    isRecurring: boolean;
-    recurrenceCadence: string | null;
-  };
-}) {
+export type OpportunityFieldsData = {
+  name: string;
+  organization: string | null;
+  type: string;
+  url: string | null;
+  deadline: Date | null;
+  notifyAt: Date | null;
+  feeAmount: number | null;
+  awardAmount: number | null;
+  discipline: string | null;
+  eligibilityNotes: string | null;
+  isRecurring: boolean;
+  recurrenceCadence: string | null;
+};
+
+export function OpportunityFields({ opportunity }: { opportunity?: OpportunityFieldsData }) {
   const o = opportunity;
   const input = "rounded-md border border-neutral-300 px-2.5 py-1.5 text-sm w-full";
   const label = "block text-xs text-neutral-500 mb-1";
