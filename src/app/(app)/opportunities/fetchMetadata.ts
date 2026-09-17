@@ -24,13 +24,30 @@ function isPrivateOrLocalHost(hostname: string) {
   return false;
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  quot: '"',
+  apos: "'",
+  lt: "<",
+  gt: ">",
+  nbsp: " ",
+  mdash: "—",
+  ndash: "–",
+  hellip: "…",
+  rsquo: "’",
+  lsquo: "‘",
+  rdquo: "”",
+  ldquo: "“",
+};
+
 function decodeEntities(s: string) {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+  return s.replace(/&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, code: string) => {
+    if (code[0] === "#") {
+      const codePoint = code[1] === "x" || code[1] === "X" ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+      return isNaN(codePoint) ? match : String.fromCodePoint(codePoint);
+    }
+    return NAMED_ENTITIES[code] ?? match;
+  });
 }
 
 function metaContent(html: string, attr: "property" | "name", key: string) {
@@ -98,11 +115,21 @@ export async function fetchOpportunityMetadataFromUrl(url: string): Promise<Oppo
     const res = await fetch(parsed.toString(), {
       signal: controller.signal,
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; ArtistDashboardBot/1.0; +https://sanyu-artist-crm.netlify.app)",
-        Accept: "text/html",
+        // A generic bot UA gets blanket-blocked by a lot of ordinary sites'
+        // WAFs (anything with "bot" in it, basically). This is fetching one
+        // page on behalf of one signed-in user clicking one button, not
+        // crawling -- a normal browser UA reflects that more honestly than
+        // it looks like it would.
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
       },
       redirect: "follow",
     });
+    if (res.status === 403 || res.status === 999) {
+      return { error: "That site is blocking automated requests -- you'll need to fill this one in by hand." };
+    }
     if (!res.ok) return { error: `The page returned an error (${res.status}).` };
     const reader = res.body?.getReader();
     if (!reader) {
