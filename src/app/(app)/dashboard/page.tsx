@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { LayoutDashboard, Lightbulb, LayoutGrid, Inbox, CalendarClock, Hourglass } from "lucide-react";
+import { LayoutDashboard, Lightbulb, LayoutGrid, Inbox, CalendarClock, Hourglass, ListChecks } from "lucide-react";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser, getDashboardData, isWorkspaceEmpty } from "@/lib/dashboard";
 import { formatShortDate, formatFullDate } from "@/lib/format";
 import { loadDemoData } from "./actions";
 import { DashboardWidgets, type Widget } from "./DashboardWidgets";
+import { TaskWidget } from "./TaskWidget";
 
 function daysAgo(date: Date) {
   return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
@@ -22,8 +24,19 @@ export default async function DashboardPage() {
   const { deadlines, awaitingDecision, counts, followUpsDue } = await getDashboardData(workspace.id);
   const empty = await isWorkspaceEmpty(workspace.id);
   const today = startOfToday();
+  const tasks = await prisma.task.findMany({ where: { workspaceId: workspace.id }, orderBy: { position: "asc" } });
 
   const widgets: Widget[] = [
+    {
+      id: "tasks",
+      header: (
+        <>
+          <ListChecks size={15} strokeWidth={2} className="text-neutral-500" />
+          <h2 className="text-sm font-medium text-neutral-700">Tasks</h2>
+        </>
+      ),
+      content: <TaskWidget tasks={tasks} />,
+    },
     {
       id: "stats",
       header: (
@@ -139,7 +152,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
+    <main className="mx-auto max-w-5xl px-6 py-12 md:px-10">
       <h1 className="mb-8 flex items-center gap-2 text-[28px] font-semibold tracking-tight text-neutral-900">
         <LayoutDashboard size={26} strokeWidth={2} /> Dashboard
       </h1>

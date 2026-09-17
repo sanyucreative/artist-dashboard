@@ -92,6 +92,22 @@ model Workspace {
   assets        Asset[]
   cvEntries     CVEntry[]
   contacts      Contact[]
+  tasks         Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// A lightweight to-do, scoped to the workspace rather than any one project
+// or opportunity -- the dashboard's quick task widget, not a project plan.
+model Task {
+  id          String   @id @default(cuid())
+  workspaceId String
+  title       String
+  done        Boolean  @default(false)
+  position    Int      @default(0)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

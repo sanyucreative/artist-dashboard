@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Target, Image, FolderOpen, FileText, BarChart3, Users } from "lucide-react";
+import { LayoutDashboard, Target, Image, FolderOpen, FileText, Users } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/opportunities", label: "Opportunities", icon: Target },
   { href: "/projects", label: "Projects", icon: Image },
   { href: "/assets", label: "Assets", icon: FolderOpen },
-  { href: "/cv", label: "CV", icon: FileText },
-  { href: "/insights", label: "Insights", icon: BarChart3 },
+  { href: "/cv", label: "Profile", icon: FileText },
   { href: "/contacts", label: "Contacts", icon: Users },
 ];
 

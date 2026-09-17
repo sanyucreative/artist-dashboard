@@ -225,4 +225,12 @@ export async function seedDemoData(workspaceId: string) {
       },
     ],
   });
+
+  await prisma.task.createMany({
+    data: [
+      { workspaceId, title: "Finish artist statement rewrite", position: 0 },
+      { workspaceId, title: "Scan and upload contact sheet from Coastline shoot", position: 1 },
+      { workspaceId, title: "Reply to Priya about the fellowship studio visit", position: 2, done: true },
+    ],
+  });
 }
