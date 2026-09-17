@@ -4,9 +4,10 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser, getDashboardData, isWorkspaceEmpty } from "@/lib/dashboard";
 import { formatShortDate, formatFullDate } from "@/lib/format";
-import { loadDemoData } from "./actions";
+import { loadDemoData, loadDemoTasks } from "./actions";
 import { DashboardWidgets, type Widget } from "./DashboardWidgets";
-import { TaskWidget } from "./TaskWidget";
+import { TaskList } from "./TaskWidget";
+import { TaskWidgetHeader } from "./TaskWidgetHeader";
 import { AddTaskCategory } from "./AddTaskCategory";
 
 function daysAgo(date: Date) {
@@ -36,30 +37,44 @@ export default async function DashboardPage() {
   // somewhere to add a task, without forcing every workspace to have a
   // TaskCategory row.
   const uncategorized = tasks.filter((t) => !t.categoryId);
+  const noTasksAtAll = tasks.length === 0 && taskCategories.length === 0;
   const taskWidgets: Widget[] = [
     ...(uncategorized.length > 0 || taskCategories.length === 0
       ? [
           {
             id: "tasks",
             header: (
-              <>
-                <ListChecks size={15} strokeWidth={2} className="text-neutral-500" />
-                <h2 className="text-sm font-medium text-neutral-700">Tasks</h2>
-              </>
+              <TaskWidgetHeader
+                icon={<ListChecks size={15} strokeWidth={2} className="shrink-0 text-neutral-500" />}
+                label="Tasks"
+                categoryId={null}
+              />
             ),
-            content: <TaskWidget tasks={uncategorized} categoryId={null} />,
+            content: noTasksAtAll ? (
+              <div className="rounded-lg border border-neutral-200 px-3 py-3">
+                <p className="mb-2 text-sm text-neutral-500">No tasks yet.</p>
+                <form action={loadDemoTasks}>
+                  <button type="submit" className="text-sm text-neutral-700 underline hover:text-neutral-900">
+                    Load example tasks
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <TaskList tasks={uncategorized} />
+            ),
           },
         ]
       : []),
     ...taskCategories.map((cat) => ({
       id: `taskcat-${cat.id}`,
       header: (
-        <>
-          <ListChecks size={15} strokeWidth={2} className="text-neutral-500" />
-          <h2 className="text-sm font-medium text-neutral-700">{cat.name}</h2>
-        </>
+        <TaskWidgetHeader
+          icon={<ListChecks size={15} strokeWidth={2} className="shrink-0 text-neutral-500" />}
+          label={cat.name}
+          categoryId={cat.id}
+        />
       ),
-      content: <TaskWidget tasks={tasks.filter((t) => t.categoryId === cat.id)} categoryId={cat.id} />,
+      content: <TaskList tasks={tasks.filter((t) => t.categoryId === cat.id)} />,
     })),
   ];
 

@@ -226,11 +226,26 @@ export async function seedDemoData(workspaceId: string) {
     ],
   });
 
+  await seedDemoTasks(workspaceId);
+}
+
+// Two example categories with a few tasks each, so a new dashboard shows
+// what the category-widget feature actually looks like in use rather than
+// an empty prompt. Split out from seedDemoData so it can also be loaded on
+// its own, for a workspace that already has projects/opportunities but no
+// tasks yet.
+export async function seedDemoTasks(workspaceId: string) {
+  const studio = await prisma.taskCategory.create({ data: { workspaceId, name: "Studio", position: 0 } });
+  const admin = await prisma.taskCategory.create({ data: { workspaceId, name: "Admin", position: 1 } });
+
   await prisma.task.createMany({
     data: [
-      { workspaceId, title: "Finish artist statement rewrite", position: 0 },
-      { workspaceId, title: "Scan and upload contact sheet from Coastline shoot", position: 1 },
-      { workspaceId, title: "Reply to Priya about the fellowship studio visit", position: 2, done: true },
+      { workspaceId, categoryId: studio.id, title: "Finish artist statement rewrite", position: 0 },
+      { workspaceId, categoryId: studio.id, title: "Scan and upload contact sheet from Coastline shoot", position: 1 },
+      { workspaceId, categoryId: studio.id, title: "Stretch new canvases for the fall series", position: 2 },
+      { workspaceId, categoryId: admin.id, title: "Reply to Priya about the fellowship studio visit", position: 0, done: true },
+      { workspaceId, categoryId: admin.id, title: "Renew studio insurance", position: 1 },
+      { workspaceId, categoryId: admin.id, title: "Invoice Riverside Gallery for print sales", position: 2 },
     ],
   });
 }
