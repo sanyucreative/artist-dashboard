@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { deleteAsset, updateAsset } from "./actions";
 import { AssetFields } from "./AssetFields";
@@ -70,16 +70,7 @@ export function AssetCard({
       {variant === "grid" && isVisual && (
         <div className="mb-2 flex h-32 items-center justify-center rounded bg-neutral-50 text-xs text-neutral-500">
           {asset.fileUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={asset.fileUrl}
-              alt={asset.title}
-              className="max-h-32 max-w-full rounded object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                e.currentTarget.insertAdjacentText("afterend", "Image could not be loaded");
-              }}
-            />
+            <AssetImage src={asset.fileUrl} alt={asset.title} />
           ) : (
             "No file linked"
           )}
@@ -113,5 +104,30 @@ export function AssetCard({
         Edit
       </button>
     </div>
+  );
+}
+
+// The image can fail before React hydrates, so onError alone misses it.
+// Also check the element on mount for an already-completed failed load.
+function AssetImage({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  const ref = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const img = ref.current;
+    if (img && img.complete && img.naturalWidth === 0) setFailed(true);
+  }, [src]);
+
+  if (failed) return <span className="px-2 text-center">Image could not be loaded</span>;
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      ref={ref}
+      src={src}
+      alt={alt}
+      className="max-h-32 max-w-full rounded object-cover"
+      onError={() => setFailed(true)}
+    />
   );
 }

@@ -25,6 +25,15 @@ const CATEGORY_LABELS_PLURAL: Record<string, string> = {
   press: "Press",
 };
 
+const CATEGORY_LABELS_SINGULAR: Record<string, string> = {
+  exhibition: "Exhibition",
+  award: "Award",
+  residency: "Residency",
+  publication: "Publication",
+  talk: "Talk",
+  press: "Press",
+};
+
 function parseDisciplines(json: string): string[] {
   try {
     const arr = JSON.parse(json);
@@ -74,7 +83,10 @@ export default async function CVPage() {
               {grouped.map((g) => (
                 <div key={g.category} className="text-sm">
                   <span className="font-semibold text-neutral-900">{g.entries.length}</span>{" "}
-                  <span className="text-neutral-500">{CATEGORY_LABELS_PLURAL[g.category] ?? titleCase(g.category)}</span>
+                  <span className="text-neutral-500">{g.entries.length === 1
+                      ? (CATEGORY_LABELS_SINGULAR[g.category] ?? titleCase(g.category))
+                      : (CATEGORY_LABELS_PLURAL[g.category] ?? titleCase(g.category))}
+                  </span>
                 </div>
               ))}
               {earliestYear && (
