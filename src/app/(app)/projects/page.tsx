@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { PageHeader } from "../PageHeader";
+import { Image } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser } from "@/lib/dashboard";
@@ -16,21 +18,20 @@ export default async function ProjectsPage() {
   });
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-4 text-2xl font-semibold text-neutral-900">Projects</h1>
-      <div className="mb-6 flex justify-end">
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
+      <PageHeader title="Projects" icon={Image}>
         <NewProjectForm />
-      </div>
+      </PageHeader>
 
       {projects.length === 0 ? (
-        <p className="text-sm text-neutral-500">No projects yet.</p>
+        <p className="text-sm text-neutral-500">No projects yet. Add your first body of work with the button above.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {projects.map((p) => (
             <Link
               key={p.id}
               href={`/projects/${p.id}`}
-              className="rounded-lg border border-neutral-200 p-4 hover:bg-black/[.02]"
+              className="widget-card block p-4"
             >
               <div className="mb-1 flex items-center gap-2">
                 <span className="text-sm font-medium text-neutral-900">{p.title}</span>

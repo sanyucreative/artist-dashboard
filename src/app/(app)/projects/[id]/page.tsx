@@ -24,7 +24,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   if (!project) notFound();
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
       <Link href="/projects" className="text-sm text-neutral-500 hover:underline">
         ← Projects
       </Link>
@@ -53,10 +53,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <ul className="space-y-1">
             {project.assets.map((a) => (
               <li key={a.id}>
-                <Link href="/assets" className="text-sm text-blue-700 hover:underline">
+                <Link href="/assets" className="text-sm text-blue-600 hover:underline">
                   {a.title}
                 </Link>
-                {a.version && <span className="ml-2 text-xs text-neutral-400">({a.version})</span>}
+                {a.version && <span className="ml-2 text-xs text-neutral-500">({a.version})</span>}
               </li>
             ))}
           </ul>
@@ -76,7 +76,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <ul className="space-y-1">
             {project.applications.map((ap) => (
               <li key={ap.applicationId}>
-                <Link href={`/applications/${ap.applicationId}`} className="text-sm text-blue-700 hover:underline">
+                <Link href={`/applications/${ap.applicationId}`} className="text-sm text-blue-600 hover:underline">
                   {ap.application.opportunity.name}
                 </Link>
                 <span className="ml-2 text-xs text-neutral-500">

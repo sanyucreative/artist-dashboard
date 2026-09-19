@@ -59,7 +59,7 @@ export function ContactRow({
         >
           <ContactFields contact={contact} />
           <div className="col-span-2 flex items-center gap-2">
-            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+            <button type="submit" className="btn-primary">
               Save
             </button>
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
@@ -67,7 +67,9 @@ export function ContactRow({
             </button>
             <button
               type="button"
-              onClick={() => startTransition(() => deleteContact(contact.id))}
+              onClick={() => {
+                if (confirm("Delete this contact?")) startTransition(() => deleteContact(contact.id));
+              }}
               className="ml-auto text-xs text-red-600 hover:underline"
             >
               Delete
@@ -122,7 +124,7 @@ export function ContactRow({
             {contact.followUpNote && <>: {contact.followUpNote}</>}
           </span>
           <form action={() => clearFollowUp(contact.id)}>
-            <button type="submit" className="shrink-0 text-neutral-400 hover:text-neutral-700">
+            <button type="submit" className="shrink-0 text-neutral-500 hover:text-neutral-700">
               Done
             </button>
           </form>
@@ -134,7 +136,7 @@ export function ContactRow({
           <div>
             <p className="mb-1 text-xs font-medium text-neutral-600">Linked opportunities</p>
             {opportunities.length === 0 ? (
-              <p className="text-xs text-neutral-400">No opportunities yet.</p>
+              <p className="text-xs text-neutral-500">No opportunities yet.</p>
             ) : (
               <ul className="space-y-1">
                 {opportunities.map((o) => {
@@ -159,7 +161,7 @@ export function ContactRow({
           <div>
             <p className="mb-1 text-xs font-medium text-neutral-600">Linked projects</p>
             {projects.length === 0 ? (
-              <p className="text-xs text-neutral-400">No projects yet.</p>
+              <p className="text-xs text-neutral-500">No projects yet.</p>
             ) : (
               <ul className="space-y-1">
                 {projects.map((p) => {

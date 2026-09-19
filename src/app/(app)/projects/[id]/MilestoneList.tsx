@@ -48,7 +48,9 @@ export function MilestoneList({ projectId, milestones }: { projectId: string; mi
                 <button
                   type="button"
                   disabled={isPending}
-                  onClick={() => startTransition(() => deleteMilestone(projectId, m.id))}
+                  onClick={() => {
+                if (confirm("Remove this milestone?")) startTransition(() => deleteMilestone(projectId, m.id));
+              }}
                   className="text-xs text-red-600 hover:underline"
                 >
                   Remove
@@ -78,7 +80,7 @@ export function MilestoneList({ projectId, milestones }: { projectId: string; mi
           </select>
           <input name="notes" placeholder="Notes" className={input + " col-span-2"} />
           <div className="col-span-2 flex gap-2">
-            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+            <button type="submit" className="btn-primary">
               Add
             </button>
             <button type="button" onClick={() => setAdding(false)} className="text-sm text-neutral-500">

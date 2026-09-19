@@ -59,7 +59,7 @@ export default async function CVPage() {
   const workspaceLabel = workspace.type ? `${workspace.name} · ${workspace.type}` : workspace.name;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
       {/* Profile header -- the artist's own name and practice front and
           center, the way a LinkedIn profile leads with the person rather
           than a table of records. */}

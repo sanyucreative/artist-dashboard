@@ -12,7 +12,7 @@ export function NewContactForm() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white"
+        className="btn-primary"
       >
         + New contact
       </button>
@@ -30,7 +30,7 @@ export function NewContactForm() {
       >
         <ContactFields />
         <div className="col-span-2 flex gap-2">
-          <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+          <button type="submit" className="btn-primary">
             Create
           </button>
           <button type="button" onClick={() => setOpen(false)} className="text-sm text-neutral-500">

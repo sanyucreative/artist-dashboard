@@ -1,4 +1,6 @@
 import { auth } from "@/auth";
+import { PageHeader } from "../PageHeader";
+import { FolderOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 import { VISUAL_ASSET_TYPES, VERSIONED_ASSET_TYPES } from "@/lib/constants";
@@ -48,14 +50,16 @@ export default async function AssetsPage({
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-4 text-2xl font-semibold text-neutral-900">Asset library</h1>
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
+      <PageHeader title="Asset library" icon={FolderOpen}>
+        <NewAssetForm projects={projects} />
+      </PageHeader>
 
-      <form className="mb-4 flex items-center gap-2" method="get">
+      <form className="mb-8 flex items-center gap-2" method="get">
         <select
           name="project"
           defaultValue={projectFilter}
-          className="rounded-md border border-neutral-300 px-2 py-1 text-xs"
+          className="rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm" aria-label="Filter by project"
         >
           <option value="all">All projects</option>
           {projects.map((p) => (
@@ -64,21 +68,17 @@ export default async function AssetsPage({
             </option>
           ))}
         </select>
-        <button type="submit" className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs text-white">
+        <button type="submit" className="btn-primary btn-sm">
           Filter
         </button>
       </form>
-
-      <div className="mb-8 flex justify-end">
-        <NewAssetForm projects={projects} />
-      </div>
 
       <section className="mb-8">
         <h2 className="mb-2 text-sm font-medium text-neutral-700">Images and work samples</h2>
         {visual.length === 0 ? (
           <p className="text-sm text-neutral-500">Nothing here yet.</p>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {visual.map((a) => (
               <AssetCard key={a.id} asset={a as AssetCardData} projects={projects} variant="grid" />
             ))}
@@ -97,7 +97,7 @@ export default async function AssetsPage({
                   <AssetCard asset={latest as AssetCardData} projects={projects} />
                   {older.length > 0 && (
                     <details className="ml-3 mt-1">
-                      <summary className="cursor-pointer text-xs text-neutral-400">
+                      <summary className="cursor-pointer text-xs text-neutral-500">
                         {older.length} earlier version{older.length === 1 ? "" : "s"}
                       </summary>
                       <div className="mt-2 space-y-2">

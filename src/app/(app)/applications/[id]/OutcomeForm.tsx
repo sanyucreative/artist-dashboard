@@ -71,7 +71,7 @@ export function OutcomeForm({
         <textarea name="retro" defaultValue={outcome.retro ?? ""} rows={2} className={input} />
       </label>
       <div className="col-span-2">
-        <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+        <button type="submit" className="btn-primary">
           Save outcome
         </button>
       </div>

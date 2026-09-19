@@ -41,7 +41,9 @@ export function ExhibitionHistory({ projectId, entries }: { projectId: string; e
               <button
                 type="button"
                 disabled={isPending}
-                onClick={() => startTransition(() => deleteExhibition(projectId, e.id))}
+                onClick={() => {
+                if (confirm("Remove this exhibition?")) startTransition(() => deleteExhibition(projectId, e.id));
+              }}
                 className="shrink-0 text-xs text-red-600 hover:underline"
               >
                 Remove
@@ -72,7 +74,7 @@ export function ExhibitionHistory({ projectId, entries }: { projectId: string; e
           <input name="location" placeholder="Location" className={input} />
           <input name="description" placeholder="Notes" className={input + " col-span-2"} />
           <div className="col-span-2 flex gap-2">
-            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+            <button type="submit" className="btn-primary">
               Add
             </button>
             <button type="button" onClick={() => setAdding(false)} className="text-sm text-neutral-500">

@@ -29,7 +29,7 @@ export default function LoginPage() {
         />
         <button
           type="submit"
-          className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-700"
+          className="btn-primary py-2"
         >
           Send magic link
         </button>

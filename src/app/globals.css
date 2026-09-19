@@ -152,3 +152,55 @@ textarea:focus-visible {
   border-radius: 12px;
   padding: 14px 16px;
 }
+
+/* Buttons: one primary style, one small size. Replaces a dozen copies of the
+   same utility string that each lacked hover, active, and disabled states. */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  background: var(--color-neutral-900);
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition:
+    background-color 120ms,
+    transform 120ms;
+}
+.btn-primary:hover {
+  background: var(--color-neutral-700);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px var(--color-neutral-300);
+  color: var(--color-neutral-800);
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 120ms;
+}
+.btn-secondary:hover {
+  background: rgba(55, 53, 47, 0.05);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-neutral-500);
+  opacity: 1;
+}

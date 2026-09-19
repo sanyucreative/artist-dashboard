@@ -47,7 +47,7 @@ export function OpportunityRow({ opportunity }: { opportunity: OpportunityRowDat
         >
           <OpportunityFields opportunity={opportunity} />
           <div className="col-span-2 flex gap-2">
-            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+            <button type="submit" className="btn-primary">
               Save
             </button>
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
@@ -85,11 +85,11 @@ export function OpportunityRow({ opportunity }: { opportunity: OpportunityRowDat
             </a>
           )}
           <form action={() => startApplication(opportunity.id)}>
-            <button type="submit" className="rounded-md border border-neutral-300 px-2.5 py-1 text-xs text-neutral-700">
+            <button type="submit" className="btn-secondary">
               Apply
             </button>
           </form>
-          <button type="button" onClick={() => setEditing(true)} className="text-xs text-neutral-500">
+          <button type="button" onClick={() => setEditing(true)} className="rounded px-1 text-xs text-neutral-500 hover:text-neutral-900">
             Edit
           </button>
         </div>
@@ -112,7 +112,7 @@ export function OpportunityRow({ opportunity }: { opportunity: OpportunityRowDat
               <ul className="mt-1 space-y-1">
                 {opportunity.applications.map((a) => (
                   <li key={a.id}>
-                    <Link href={`/applications/${a.id}`} className="text-sm text-blue-700 hover:underline">
+                    <Link href={`/applications/${a.id}`} className="text-sm text-blue-600 hover:underline">
                       {APPLICATION_STATUS_LABELS[a.status] ?? a.status}
                     </Link>
                     {a.submittedAt && (
@@ -127,6 +127,7 @@ export function OpportunityRow({ opportunity }: { opportunity: OpportunityRowDat
           </div>
           <form
             action={async () => {
+              if (!confirm("Delete this opportunity and its applications? This cannot be undone.")) return;
               await deleteOpportunity(opportunity.id);
             }}
           >

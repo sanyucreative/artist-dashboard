@@ -24,7 +24,7 @@ export function StatusStepper({ applicationId, status }: { applicationId: string
                   ? "bg-neutral-900 text-white"
                   : isPast
                     ? "bg-neutral-200 text-neutral-700"
-                    : "bg-neutral-100 text-neutral-400 hover:bg-neutral-200"
+                    : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
               }`}
             >
               {APPLICATION_STATUS_LABELS[s]}

@@ -34,7 +34,7 @@ export function ProjectHeader({ project }: { project: ProjectData }) {
         >
           <ProjectFields project={project} />
           <div className="col-span-2 flex items-center gap-2">
-            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+            <button type="submit" className="btn-primary">
               Save
             </button>
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
@@ -42,7 +42,9 @@ export function ProjectHeader({ project }: { project: ProjectData }) {
             </button>
             <button
               type="button"
-              onClick={() => startTransition(() => deleteProject(project.id))}
+              onClick={() => {
+                if (confirm("Delete this project and everything attached to it? This cannot be undone.")) startTransition(() => deleteProject(project.id));
+              }}
               className="ml-auto text-xs text-red-600 hover:underline"
             >
               Delete project
@@ -58,7 +60,7 @@ export function ProjectHeader({ project }: { project: ProjectData }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold text-neutral-900">{project.title}</h1>
+            <h1 className="text-[28px] font-semibold tracking-tight text-neutral-900">{project.title}</h1>
             <span className={`tag ${PROJECT_STATUS_TAG_COLORS[project.status] ?? "tag-gray"}`}>
               {titleCase(project.status)}
             </span>

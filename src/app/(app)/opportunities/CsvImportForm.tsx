@@ -29,7 +29,7 @@ export function CsvImportForm() {
       <button type="button" onClick={() => setOpen(false)} className="text-xs text-neutral-500">
         Cancel
       </button>
-      <span className="text-[11px] text-neutral-400">columns: name,organization,type,url,deadline,discipline,feeAmount,awardAmount</span>
+      <span className="text-[11px] text-neutral-500">columns: name,organization,type,url,deadline,discipline,feeAmount,awardAmount</span>
     </form>
   );
 }

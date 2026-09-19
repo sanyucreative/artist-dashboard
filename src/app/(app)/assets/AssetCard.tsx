@@ -42,7 +42,7 @@ export function AssetCard({
         >
           <AssetFields asset={asset} projects={projects} />
           <div className="col-span-2 flex gap-2">
-            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+            <button type="submit" className="btn-primary">
               Save
             </button>
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
@@ -50,7 +50,9 @@ export function AssetCard({
             </button>
             <button
               type="button"
-              onClick={() => startTransition(() => deleteAsset(asset.id))}
+              onClick={() => {
+                if (confirm("Delete this asset?")) startTransition(() => deleteAsset(asset.id));
+              }}
               className="ml-auto text-xs text-red-600 hover:underline"
             >
               Delete
@@ -66,10 +68,18 @@ export function AssetCard({
   return (
     <div className={`rounded-lg border border-neutral-200 p-3 ${variant === "grid" ? "" : "flex items-start justify-between gap-3"}`}>
       {variant === "grid" && isVisual && (
-        <div className="mb-2 flex h-32 items-center justify-center rounded bg-neutral-50 text-xs text-neutral-400">
+        <div className="mb-2 flex h-32 items-center justify-center rounded bg-neutral-50 text-xs text-neutral-500">
           {asset.fileUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={asset.fileUrl} alt={asset.title} className="max-h-32 max-w-full rounded object-cover" />
+            <img
+              src={asset.fileUrl}
+              alt={asset.title}
+              className="max-h-32 max-w-full rounded object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                e.currentTarget.insertAdjacentText("afterend", "Image could not be loaded");
+              }}
+            />
           ) : (
             "No file linked"
           )}
@@ -81,7 +91,7 @@ export function AssetCard({
           <span className="tag tag-gray">
             {ASSET_TYPE_LABELS[asset.type] ?? asset.type}
           </span>
-          {asset.version && <span className="text-xs text-neutral-400">{asset.version}</span>}
+          {asset.version && <span className="text-xs text-neutral-500">{asset.version}</span>}
         </div>
         {asset.project && <p className="text-xs text-neutral-500">Project: {asset.project.title}</p>}
         {asset.notes && <p className="text-xs text-neutral-500">{asset.notes}</p>}
@@ -91,7 +101,7 @@ export function AssetCard({
             {asset.usedIn.map((u, i) => (
               <span key={u.application.id}>
                 {i > 0 && ", "}
-                <Link href={`/applications/${u.application.id}`} className="text-blue-700 hover:underline">
+                <Link href={`/applications/${u.application.id}`} className="text-blue-600 hover:underline">
                   {u.application.opportunity.name}
                 </Link>
               </span>

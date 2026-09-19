@@ -23,7 +23,7 @@ export function EligibilityChecklist({
       <div className="mb-1 flex items-center justify-between">
         <p className="text-xs font-medium text-neutral-600">Eligibility checklist</p>
         {criteria.length > 0 && (
-          <span className="text-[11px] text-neutral-400">
+          <span className="text-[11px] text-neutral-500">
             {doneCount}/{criteria.length} verified
           </span>
         )}
@@ -46,7 +46,9 @@ export function EligibilityChecklist({
               <button
                 type="button"
                 disabled={isPending}
-                onClick={() => startTransition(() => deleteEligibilityCriterion(opportunityId, c.id))}
+                onClick={() => {
+                if (confirm("Remove this criterion?")) startTransition(() => deleteEligibilityCriterion(opportunityId, c.id));
+              }}
                 className="text-[11px] text-red-600 hover:underline"
               >
                 Remove
@@ -73,7 +75,7 @@ export function EligibilityChecklist({
             className="flex-1 rounded-md border border-neutral-300 px-2 py-1 text-sm"
             autoFocus
           />
-          <button type="submit" className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs text-white">
+          <button type="submit" className="btn-primary btn-sm">
             Add
           </button>
           <button type="button" onClick={() => setAdding(false)} className="text-xs text-neutral-500">

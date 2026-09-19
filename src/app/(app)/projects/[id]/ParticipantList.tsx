@@ -17,7 +17,7 @@ const CONSENT_CHIP: Record<string, string> = {
   granted: "bg-green-100 text-green-700",
   declined: "bg-red-100 text-red-700",
   expired: "bg-amber-100 text-amber-700",
-  requested: "bg-blue-100 text-blue-700",
+  requested: "bg-blue-100 text-blue-600",
   not_requested: "bg-neutral-100 text-neutral-600",
 };
 
@@ -42,7 +42,9 @@ export function ParticipantList({ projectId, participants }: { projectId: string
                 <button
                   type="button"
                   disabled={isPending}
-                  onClick={() => startTransition(() => deleteParticipant(projectId, p.id))}
+                  onClick={() => {
+                if (confirm("Remove this participant?")) startTransition(() => deleteParticipant(projectId, p.id));
+              }}
                   className="text-xs text-red-600 hover:underline"
                 >
                   Remove
@@ -53,7 +55,7 @@ export function ParticipantList({ projectId, participants }: { projectId: string
                   value={p.consentStatus}
                   disabled={isPending}
                   onChange={(e) => startTransition(() => updateParticipantConsent(projectId, p.id, e.target.value))}
-                  className={`rounded px-1.5 py-0.5 text-[11px] ${CONSENT_CHIP[p.consentStatus] ?? "bg-neutral-100"}`}
+                  className={`tag cursor-pointer ${CONSENT_CHIP[p.consentStatus] ?? "tag-gray"}`}
                 >
                   {CONSENT_STATUSES.map((c) => (
                     <option key={c} value={c}>
@@ -88,7 +90,7 @@ export function ParticipantList({ projectId, participants }: { projectId: string
           </select>
           <input name="notes" placeholder="Notes" className={input + " col-span-2"} />
           <div className="col-span-2 flex gap-2">
-            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+            <button type="submit" className="btn-primary">
               Add
             </button>
             <button type="button" onClick={() => setAdding(false)} className="text-sm text-neutral-500">

@@ -1,4 +1,6 @@
 import { auth } from "@/auth";
+import { PageHeader } from "../PageHeader";
+import { Users } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 import { RELATIONSHIP_TYPES, titleCase } from "@/lib/constants";
@@ -29,14 +31,13 @@ export default async function ContactsPage({
   ]);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-4 text-2xl font-semibold text-neutral-900">Contacts</h1>
-      <div className="mb-6 flex justify-end">
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
+      <PageHeader title="Contacts" icon={Users}>
         <NewContactForm />
-      </div>
+      </PageHeader>
 
       <form className="mb-6 flex items-center gap-2" method="get">
-        <select name="type" defaultValue={relationshipType} className="rounded-md border border-neutral-300 px-2 py-1 text-xs">
+        <select name="type" defaultValue={relationshipType} className="rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm" aria-label="Relationship type">
           <option value="all">All relationship types</option>
           {RELATIONSHIP_TYPES.map((r) => (
             <option key={r} value={r}>
@@ -44,18 +45,18 @@ export default async function ContactsPage({
             </option>
           ))}
         </select>
-        <button type="submit" className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs text-white">
+        <button type="submit" className="btn-primary btn-sm">
           Filter
         </button>
-        <a href="/contacts" className="text-xs text-neutral-400 hover:text-neutral-600">
+        <a href="/contacts" className="text-sm text-neutral-500 hover:text-neutral-800">
           Clear
         </a>
       </form>
 
       {contacts.length === 0 ? (
-        <p className="text-sm text-neutral-500">No contacts match this filter.</p>
+        <p className="text-sm text-neutral-500">No contacts match. Clear the filter, or add someone with the button above.</p>
       ) : (
-        <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
+        <ul className="divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">
           {contacts.map((c) => (
             <ContactRow key={c.id} contact={c as ContactData} opportunities={opportunities} projects={projects} />
           ))}

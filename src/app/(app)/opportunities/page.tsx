@@ -1,4 +1,6 @@
 import { auth } from "@/auth";
+import { Target } from "lucide-react";
+import { PageHeader } from "../PageHeader";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 import { OPPORTUNITY_TYPES, titleCase } from "@/lib/constants";
@@ -46,24 +48,24 @@ export default async function OpportunitiesPage({
     orderBy: { deadline: "asc" },
   });
 
-  const selectClass = "rounded-md border border-neutral-300 px-2 py-1 text-xs";
+  const selectClass = "rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="mb-4 text-2xl font-semibold text-neutral-900">Opportunities</h1>
-      <div className="mb-6 flex flex-wrap items-start justify-end gap-3">
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
+      <PageHeader title="Opportunities" icon={Target}>
         <CsvImportForm />
         <NewOpportunityForm />
-      </div>
+      </PageHeader>
 
-      <form className="mb-6 flex flex-wrap items-center gap-2" method="get">
+      <form className="mb-6 flex flex-wrap items-start gap-2" method="get">
         <input
           name="discipline"
           defaultValue={discipline}
           placeholder="Discipline"
+          aria-label="Discipline"
           className={selectClass}
         />
-        <select name="type" defaultValue={type} className={selectClass}>
+        <select name="type" defaultValue={type} className={selectClass} aria-label="Opportunity type">
           <option value="all">All types</option>
           {OPPORTUNITY_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -71,31 +73,36 @@ export default async function OpportunitiesPage({
             </option>
           ))}
         </select>
-        <input type="date" name="from" defaultValue={deadlineFrom} className={selectClass} />
-        <span className="text-xs text-neutral-400">to</span>
-        <input type="date" name="to" defaultValue={deadlineTo} className={selectClass} />
-        <select name="fee" defaultValue={fee} className={selectClass}>
-          <option value="any">Any fee</option>
-          <option value="free">Free</option>
-          <option value="paid">Has fee</option>
-        </select>
-        <select name="applied" defaultValue={applied} className={selectClass}>
+        <select name="applied" defaultValue={applied} className={selectClass} aria-label="Applied status">
           <option value="any">Applied: any</option>
           <option value="yes">Applied: yes</option>
           <option value="no">Applied: no</option>
         </select>
-        <button type="submit" className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs text-white">
-          Filter
+        <details className="group" open={Boolean(deadlineFrom || deadlineTo || fee !== "any")}>
+          <summary className="btn-secondary cursor-pointer list-none">More filters</summary>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <input type="date" name="from" defaultValue={deadlineFrom} className={selectClass} aria-label="Deadline from" />
+            <span className="text-sm text-neutral-500">to</span>
+            <input type="date" name="to" defaultValue={deadlineTo} className={selectClass} aria-label="Deadline to" />
+            <select name="fee" defaultValue={fee} className={selectClass} aria-label="Application fee">
+              <option value="any">Any fee</option>
+              <option value="free">Free</option>
+              <option value="paid">Has fee</option>
+            </select>
+          </div>
+        </details>
+        <button type="submit" className="btn-primary btn-sm">
+          Apply filters
         </button>
-        <a href="/opportunities" className="text-xs text-neutral-400 hover:text-neutral-600">
+        <a href="/opportunities" className="self-center text-sm text-neutral-500 hover:text-neutral-800">
           Clear
         </a>
       </form>
 
       {opportunities.length === 0 ? (
-        <p className="text-sm text-neutral-500">No opportunities match this filter.</p>
+        <p className="text-sm text-neutral-500">No opportunities match. Clear the filters, or add one with the button above.</p>
       ) : (
-        <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
+        <ul className="divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200">
           {opportunities.map((o) => (
             <OpportunityRow key={o.id} opportunity={o} />
           ))}

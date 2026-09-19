@@ -29,12 +29,12 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
   const linkedAssetIds = new Set(application.assetsUsed.map((a) => a.assetId));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-12 md:px-10">
       <Link href="/opportunities" className="text-sm text-neutral-500 hover:underline">
         ← Opportunities
       </Link>
 
-      <h1 className="mt-2 mb-1 text-2xl font-semibold text-neutral-900">{application.opportunity.name}</h1>
+      <h1 className="mt-2 mb-1 text-[28px] font-semibold tracking-tight text-neutral-900">{application.opportunity.name}</h1>
       <p className="mb-6 text-sm text-neutral-500">
         {application.opportunity.organization ?? "No organization"}
         {application.opportunity.deadline && (

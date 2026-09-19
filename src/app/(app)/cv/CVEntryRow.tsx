@@ -33,7 +33,7 @@ export function CVEntryRow({ entry }: { entry: CVEntryData }) {
         >
           <CVEntryFields entry={entry} />
           <div className="col-span-2 flex gap-2">
-            <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white">
+            <button type="submit" className="btn-primary">
               Save
             </button>
             <button type="button" onClick={() => setEditing(false)} className="text-sm text-neutral-500">
@@ -41,7 +41,9 @@ export function CVEntryRow({ entry }: { entry: CVEntryData }) {
             </button>
             <button
               type="button"
-              onClick={() => startTransition(() => deleteCVEntry(entry.id))}
+              onClick={() => {
+                if (confirm("Delete this entry from your profile?")) startTransition(() => deleteCVEntry(entry.id));
+              }}
               className="ml-auto text-xs text-red-600 hover:underline"
             >
               Delete

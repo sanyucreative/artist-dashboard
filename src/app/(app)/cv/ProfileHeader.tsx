@@ -48,7 +48,7 @@ export function ProfileHeader({
                 className="w-64 rounded-md border border-neutral-300 px-2.5 py-1.5 text-xs"
               />
               <div className="flex gap-2">
-                <button type="submit" className="rounded-md bg-neutral-900 px-3 py-1 text-xs font-medium text-white">
+                <button type="submit" className="btn-primary btn-sm">
                   Save
                 </button>
                 <button type="button" onClick={() => setEditing(false)} className="text-xs text-neutral-500">
@@ -59,7 +59,7 @@ export function ProfileHeader({
           ) : (
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-semibold text-neutral-900">{name ?? "Add your name"}</h1>
+                <h1 className="text-[28px] font-semibold tracking-tight text-neutral-900">{name ?? "Add your name"}</h1>
                 <button
                   type="button"
                   onClick={() => setEditing(true)}

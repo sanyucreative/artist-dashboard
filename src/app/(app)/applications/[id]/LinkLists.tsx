@@ -65,7 +65,7 @@ export function AssetLinker({
                 onChange={() => startTransition(() => toggleAssetLink(applicationId, a.id, linked))}
               />
               {a.title}
-              {a.version && <span className="text-xs text-neutral-400">({a.version})</span>}
+              {a.version && <span className="text-xs text-neutral-500">({a.version})</span>}
             </label>
           </li>
         );
