@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 import { SidebarNav } from "./SidebarNav";
+import { isFeedbackAdmin } from "@/lib/admin";
 import { AppShell } from "./AppShell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -24,7 +25,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="mt-2">
-            <SidebarNav />
+            <SidebarNav isAdmin={isFeedbackAdmin(session.user.email)} />
           </div>
 
           <div className="mt-auto px-2 pt-3">

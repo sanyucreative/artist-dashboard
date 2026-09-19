@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FeedbackButton } from "./FeedbackButton";
-import { LayoutDashboard, Target, Image, FolderOpen, FileText, Users } from "lucide-react";
+import { LayoutDashboard, Target, Image, FolderOpen, FileText, Users, Inbox } from "lucide-react";
 
-const NAV_LINKS = [
+const BASE_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/opportunities", label: "Opportunities", icon: Target },
   { href: "/projects", label: "Projects", icon: Image },
@@ -14,8 +14,9 @@ const NAV_LINKS = [
   { href: "/contacts", label: "Contacts", icon: Users },
 ];
 
-export function SidebarNav() {
+export function SidebarNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const NAV_LINKS = isAdmin ? [...BASE_LINKS, { href: "/feedback", label: "Feedback inbox", icon: Inbox }] : BASE_LINKS;
 
   return (
     <nav className="flex flex-col gap-0.5 px-2">

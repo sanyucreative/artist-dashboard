@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GripVertical } from "lucide-react";
+import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
 
 const ORDER_KEY = "dashboard-widget-order";
 const HEIGHT_KEY_PREFIX = "dashboard-widget-height-";
@@ -155,6 +155,16 @@ export function DashboardWidgets({ widgets }: { widgets: Widget[] }) {
               >
                 <GripVertical size={16} strokeWidth={2} />
               </button>
+              {/* Touch screens can't drag with native HTML5 drag-and-drop, so
+                  show explicit move buttons there instead. */}
+              <div className="hidden shrink-0 items-center [@media(pointer:coarse)]:flex">
+                <button type="button" aria-label="Move widget up" onClick={() => move(id, -1)} className="rounded p-1 text-neutral-500 active:bg-black/[.05]">
+                  <ChevronUp size={16} strokeWidth={2} />
+                </button>
+                <button type="button" aria-label="Move widget down" onClick={() => move(id, 1)} className="rounded p-1 text-neutral-500 active:bg-black/[.05]">
+                  <ChevronDown size={16} strokeWidth={2} />
+                </button>
+              </div>
               {widget.header}
             </div>
             <ResizableContent id={id}>{widget.content}</ResizableContent>

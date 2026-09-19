@@ -9,12 +9,12 @@ export function StatusStepper({ applicationId, status }: { applicationId: string
   const currentIndex = APPLICATION_STATUSES.indexOf(status as (typeof APPLICATION_STATUSES)[number]);
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex flex-wrap items-center gap-y-2">
       {APPLICATION_STATUSES.map((s, i) => {
         const isCurrent = s === status;
         const isPast = i < currentIndex;
         return (
-          <div key={s} className="flex items-center">
+          <div key={s} className="flex items-center pr-1.5 sm:pr-0">
             <button
               type="button"
               disabled={isPending}
@@ -29,7 +29,7 @@ export function StatusStepper({ applicationId, status }: { applicationId: string
             >
               {APPLICATION_STATUS_LABELS[s]}
             </button>
-            {i < APPLICATION_STATUSES.length - 1 && <span className="mx-1 h-px w-3 bg-neutral-200" />}
+            {i < APPLICATION_STATUSES.length - 1 && <span className="mx-1 hidden h-px w-3 bg-neutral-200 sm:block" />}
           </div>
         );
       })}
