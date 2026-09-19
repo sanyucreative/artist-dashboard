@@ -51,6 +51,10 @@ function ResizableContent({ id, children }: { id: string; children: React.ReactN
     if (saved) el.style.height = `${saved}px`;
 
     const observer = new ResizeObserver(() => {
+      // Native resize writes an inline height; auto layout never does. Saving
+      // only inline heights stops the first render from freezing a widget at
+      // its initial size, which would clip every task added afterwards.
+      if (!el.style.height) return;
       const h = Math.round(el.getBoundingClientRect().height);
       try {
         window.localStorage.setItem(HEIGHT_KEY_PREFIX + id, String(h));
@@ -63,7 +67,7 @@ function ResizableContent({ id, children }: { id: string; children: React.ReactN
   }, [id]);
 
   return (
-    <div ref={ref} className="min-h-[64px] resize-y overflow-auto">
+    <div ref={ref} className="min-h-[64px] resize-y overflow-auto pb-1">
       {children}
     </div>
   );
@@ -102,13 +106,23 @@ export function DashboardWidgets({ widgets }: { widgets: Widget[] }) {
     setDragId(null);
   }
 
+  function move(id: string, delta: number) {
+    const from = order.indexOf(id);
+    const to = from + delta;
+    if (from < 0 || to < 0 || to >= order.length) return;
+    const next = [...order];
+    next.splice(from, 1);
+    next.splice(to, 0, id);
+    persistOrder(next);
+  }
+
   const byId = new Map(widgets.map((w) => [w.id, w]));
   // Before hydration, render in the server-rendered default order so there's
   // no flash of reordered content once localStorage is read.
   const visibleOrder = mounted ? order : defaultIds;
 
   return (
-    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+    <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
       {visibleOrder.map((id) => {
         const widget = byId.get(id);
         if (!widget) return null;
@@ -116,20 +130,31 @@ export function DashboardWidgets({ widgets }: { widgets: Widget[] }) {
           <div
             key={id}
             draggable
+            data-dragging={dragId === id}
             onDragStart={() => setDragId(id)}
+            onDragEnd={() => setDragId(null)}
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => handleDrop(id)}
-            className={`rounded-lg border border-neutral-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,15,15,0.06),0_2px_8px_rgba(15,15,15,0.04)] transition-opacity ${
-              dragId === id ? "opacity-40" : ""
-            }`}
+            className="widget-card p-4"
           >
-            <div className="mb-3 flex items-center gap-2">
-              <span
-                className="cursor-grab touch-none text-neutral-300 hover:text-neutral-500 active:cursor-grabbing"
-                aria-hidden
+            <div className="mb-3 flex items-start gap-1.5">
+              <button
+                type="button"
+                aria-label="Move widget. Drag, or use the arrow keys."
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    move(id, -1);
+                  }
+                  if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+                    e.preventDefault();
+                    move(id, 1);
+                  }
+                }}
+                className="-ml-1 mt-px shrink-0 cursor-grab touch-none rounded p-1 text-neutral-500 hover:bg-black/[.05] hover:text-neutral-800 active:cursor-grabbing"
               >
                 <GripVertical size={16} strokeWidth={2} />
-              </span>
+              </button>
               {widget.header}
             </div>
             <ResizableContent id={id}>{widget.content}</ResizableContent>

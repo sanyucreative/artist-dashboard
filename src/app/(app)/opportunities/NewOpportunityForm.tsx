@@ -76,7 +76,7 @@ export function NewOpportunityForm() {
         {fetchError && <p className="mt-1.5 text-xs text-red-600">{fetchError}</p>}
         {prefill && !fetchError && (
           <p className="mt-1.5 text-xs text-neutral-500">
-            Filled in below from the page — double-check the deadline and amounts, they're guesses.
+            Filled in from the page. The deadline and amounts are best guesses, so check them before saving.
           </p>
         )}
       </div>

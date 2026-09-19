@@ -23,7 +23,7 @@ export async function getCVData(workspaceId: string) {
 function formatEntryLine(e: { title: string; organization: string | null; location: string | null; date: Date | null }) {
   const bits = [e.organization, e.location].filter(Boolean).join(", ");
   const year = e.date ? dateYearUTC(e.date) : null;
-  return [e.title, bits, year].filter(Boolean).join(" — ");
+  return [e.title, bits, year].filter(Boolean).join(" - ");
 }
 
 export function renderCVAsText(data: Awaited<ReturnType<typeof getCVData>>) {

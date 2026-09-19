@@ -119,7 +119,7 @@ export function ContactRow({
         >
           <span>
             Follow up {formatFullDate(contact.nextFollowUpDate)}
-            {contact.followUpNote && <> — {contact.followUpNote}</>}
+            {contact.followUpNote && <>: {contact.followUpNote}</>}
           </span>
           <form action={() => clearFollowUp(contact.id)}>
             <button type="submit" className="shrink-0 text-neutral-400 hover:text-neutral-700">

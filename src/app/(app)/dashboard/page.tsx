@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Lightbulb, LayoutGrid, Inbox, CalendarClock, Hourglass, ListChecks } from "lucide-react";
+import { LayoutDashboard, Lightbulb, LayoutGrid, Inbox, CalendarClock, Hourglass, ListChecks, Target, Flag } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser, getDashboardData, isWorkspaceEmpty } from "@/lib/dashboard";
@@ -9,6 +9,15 @@ import { DashboardWidgets, type Widget } from "./DashboardWidgets";
 import { TaskList } from "./TaskWidget";
 import { TaskWidgetHeader } from "./TaskWidgetHeader";
 import { AddTaskCategory } from "./AddTaskCategory";
+
+function WidgetTitle({ icon: Icon, children }: { icon: typeof Inbox; children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-7 min-w-0 flex-1 items-center gap-2">
+      <Icon size={15} strokeWidth={2} className="shrink-0 text-neutral-500" />
+      <h2 className="min-w-0 truncate text-sm font-medium text-neutral-700">{children}</h2>
+    </div>
+  );
+}
 
 function daysAgo(date: Date) {
   return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
@@ -51,10 +60,10 @@ export default async function DashboardPage() {
               />
             ),
             content: noTasksAtAll ? (
-              <div className="rounded-lg border border-neutral-200 px-3 py-3">
+              <div>
                 <p className="mb-2 text-sm text-neutral-500">No tasks yet.</p>
                 <form action={loadDemoTasks}>
-                  <button type="submit" className="text-sm text-neutral-700 underline hover:text-neutral-900">
+                  <button type="submit" className="rounded text-sm font-medium text-neutral-800 underline underline-offset-2 hover:text-neutral-900">
                     Load example tasks
                   </button>
                 </form>
@@ -82,14 +91,9 @@ export default async function DashboardPage() {
     ...taskWidgets,
     {
       id: "stats",
-      header: (
-        <>
-          <LayoutGrid size={15} strokeWidth={2} className="text-neutral-500" />
-          <h2 className="text-sm font-medium text-neutral-700">Overview</h2>
-        </>
-      ),
+      header: <WidgetTitle icon={LayoutGrid}>Applications</WidgetTitle>,
       content: (
-        <div className="grid grid-cols-4 gap-3">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-4">
           {(
             [
               ["Submitted", counts.submitted],
@@ -98,36 +102,34 @@ export default async function DashboardPage() {
               ["Pending", counts.pending],
             ] as const
           ).map(([label, value]) => (
-            <div key={label} className="rounded-lg border border-neutral-200 p-3">
-              <p className="text-xs text-neutral-500">{label}</p>
-              <p className="text-xl font-semibold text-neutral-900">{value}</p>
+            <div key={label}>
+              <dt className="text-xs text-neutral-500">{label}</dt>
+              <dd className="text-2xl leading-tight font-semibold text-neutral-900">{value}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       ),
     },
     {
       id: "followups",
-      header: (
-        <>
-          <Inbox size={15} strokeWidth={2} className="text-neutral-500" />
-          <h2 className="text-sm font-medium text-neutral-700">Follow-ups due</h2>
-        </>
-      ),
+      header: <WidgetTitle icon={Inbox}>Follow-ups due</WidgetTitle>,
       content:
         followUpsDue.length === 0 ? (
-          <p className="text-sm text-neutral-500">No follow-ups due.</p>
+          <p className="text-sm text-neutral-500">Nothing to follow up on. Set a date on a contact to see it here.</p>
         ) : (
-          <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
+          <ul className="divide-y divide-neutral-100">
             {followUpsDue.map((c) => {
               const overdue = c.nextFollowUpDate! < today;
               return (
-                <li key={c.id} className="flex items-center justify-between px-3 py-2 hover:bg-black/[.02]">
-                  <Link href="/contacts" className="text-sm text-neutral-900 hover:underline">
-                    {c.name}
-                  </Link>
-                  {c.followUpNote && <span className="flex-1 px-2 text-xs text-neutral-500">{c.followUpNote}</span>}
-                  <span className={`shrink-0 text-xs ${overdue ? "text-amber-700" : "text-neutral-500"}`}>
+                <li key={c.id} className="flex items-baseline justify-between gap-3 py-2">
+                  <div className="min-w-0">
+                    <Link href="/contacts" className="text-sm text-neutral-900 hover:underline">
+                      {c.name}
+                    </Link>
+                    {c.followUpNote && <p className="truncate text-xs text-neutral-500">{c.followUpNote}</p>}
+                  </div>
+                  <span className={`shrink-0 text-xs ${overdue ? "font-medium text-amber-800" : "text-neutral-500"}`}>
+                    {overdue ? "Overdue " : ""}
                     {formatFullDate(c.nextFollowUpDate!)}
                   </span>
                 </li>
@@ -138,54 +140,50 @@ export default async function DashboardPage() {
     },
     {
       id: "deadlines",
-      header: (
-        <>
-          <CalendarClock size={15} strokeWidth={2} className="text-neutral-500" />
-          <h2 className="text-sm font-medium text-neutral-700">Deadlines in the next 30 days</h2>
-        </>
-      ),
+      header: <WidgetTitle icon={CalendarClock}>Upcoming deadlines</WidgetTitle>,
       content:
         deadlines.length === 0 ? (
           <p className="text-sm text-neutral-500">Nothing due in the next 30 days.</p>
         ) : (
-          <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
-            {deadlines.map((d) => (
-              <li key={d.id} className="flex items-center justify-between px-3 py-2 hover:bg-black/[.02]">
-                <div>
-                  <span
-                    className={`mr-2 inline-block h-2 w-2 rounded-full ${
-                      d.kind === "opportunity" ? "bg-blue-500" : "bg-amber-500"
-                    }`}
-                  />
-                  <span className="text-sm text-neutral-900">{d.title}</span>
-                  {d.meta && <span className="ml-2 text-xs text-neutral-500">{d.meta}</span>}
-                </div>
-                <span className="ml-3 shrink-0 text-xs text-neutral-500">{formatShortDate(d.date)}</span>
-              </li>
-            ))}
+          <ul className="divide-y divide-neutral-100">
+            {deadlines.map((d) => {
+              const Icon = d.kind === "opportunity" ? Target : Flag;
+              return (
+                <li key={d.id} className="flex items-start justify-between gap-3 py-2">
+                  <div className="flex min-w-0 items-start gap-2">
+                    <Icon
+                      size={14}
+                      strokeWidth={2}
+                      aria-label={d.kind === "opportunity" ? "Opportunity" : "Milestone"}
+                      className="mt-0.5 shrink-0 text-neutral-500"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm leading-snug text-neutral-900">{d.title}</p>
+                      {d.meta && <p className="truncate text-xs text-neutral-500">{d.meta}</p>}
+                    </div>
+                  </div>
+                  <span className="shrink-0 text-xs text-neutral-500">{formatShortDate(d.date)}</span>
+                </li>
+              );
+            })}
           </ul>
         ),
     },
     {
       id: "awaiting",
-      header: (
-        <>
-          <Hourglass size={15} strokeWidth={2} className="text-neutral-500" />
-          <h2 className="text-sm font-medium text-neutral-700">Awaiting a decision</h2>
-        </>
-      ),
+      header: <WidgetTitle icon={Hourglass}>Awaiting a decision</WidgetTitle>,
       content:
         awaitingDecision.length === 0 ? (
           <p className="text-sm text-neutral-500">Nothing waiting on a response.</p>
         ) : (
-          <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
+          <ul className="divide-y divide-neutral-100">
             {awaitingDecision.map((a) => (
-              <li key={a.id} className="flex items-center justify-between px-3 py-2 hover:bg-black/[.02]">
-                <Link href={`/applications/${a.id}`} className="text-sm text-neutral-900 hover:underline">
+              <li key={a.id} className="flex items-baseline justify-between gap-3 py-2">
+                <Link href={`/applications/${a.id}`} className="min-w-0 text-sm text-neutral-900 hover:underline">
                   {a.opportunity.name}
                 </Link>
-                <span className="text-xs text-neutral-500">
-                  {a.submittedAt ? `${daysAgo(a.submittedAt)}d since submission` : "not yet submitted"}
+                <span className="shrink-0 text-xs text-neutral-500">
+                  {a.submittedAt ? `${daysAgo(a.submittedAt)}d waiting` : "not submitted"}
                 </span>
               </li>
             ))}

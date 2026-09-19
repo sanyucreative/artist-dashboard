@@ -36,14 +36,15 @@ export function TaskWidgetHeader({
 
   return (
     <div className="min-w-0 flex-1">
-      <div className="flex items-center gap-2">
+      <div className="flex min-h-7 items-center gap-2">
         {icon}
         <h2 className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-700">{label}</h2>
         <button
           type="button"
           onClick={() => setAdding((v) => !v)}
           aria-label={`Add task to ${label}`}
-          className="shrink-0 rounded text-neutral-400 hover:text-neutral-900"
+          aria-expanded={adding}
+          className="-mr-1 shrink-0 rounded p-1.5 text-neutral-500 hover:bg-black/[.05] hover:text-neutral-900"
         >
           <Plus size={16} strokeWidth={2} />
         </button>
@@ -64,9 +65,10 @@ export function TaskWidgetHeader({
           onBlur={() => {
             if (!title.trim()) setAdding(false);
           }}
-          placeholder="Task title"
+          placeholder="Task title, then Enter"
+          aria-label={`New task in ${label}`}
           disabled={pending}
-          className="mt-2 w-full rounded-md border border-neutral-300 px-2 py-1 text-sm outline-none"
+          className="mt-1 mb-1 w-full rounded-md border border-neutral-300 px-2.5 py-1.5 text-sm"
         />
       )}
     </div>

@@ -66,7 +66,7 @@ export async function getDashboardData(workspaceId: string) {
     ...milestones.map((m) => ({
       id: `mile-${m.id}`,
       kind: "milestone" as const,
-      title: `${m.project.title} — ${m.title}`,
+      title: `${m.project.title}: ${m.title}`,
       date: m.dueDate!,
       meta: null,
     })),

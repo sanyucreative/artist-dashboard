@@ -10,7 +10,7 @@ export default function LoginPage() {
         </span>
         <h1 className="text-xl font-semibold text-neutral-900">Artist Dashboard</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Sign in with your email — we&apos;ll send a link, no password needed.
+          Enter your email and we&apos;ll send you a sign-in link. No password needed.
         </p>
       </div>
       <form

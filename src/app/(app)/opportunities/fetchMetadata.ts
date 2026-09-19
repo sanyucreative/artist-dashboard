@@ -31,8 +31,8 @@ const NAMED_ENTITIES: Record<string, string> = {
   lt: "<",
   gt: ">",
   nbsp: " ",
-  mdash: "—",
-  ndash: "–",
+  mdash: "-",
+  ndash: "-",
   hellip: "…",
   rsquo: "’",
   lsquo: "‘",
@@ -128,7 +128,7 @@ export async function fetchOpportunityMetadataFromUrl(url: string): Promise<Oppo
       redirect: "follow",
     });
     if (res.status === 403 || res.status === 999) {
-      return { error: "That site is blocking automated requests -- you'll need to fill this one in by hand." };
+      return { error: "That site is blocking automated requests. You'll need to fill this one in by hand." };
     }
     if (!res.ok) return { error: `The page returned an error (${res.status}).` };
     const reader = res.body?.getReader();
