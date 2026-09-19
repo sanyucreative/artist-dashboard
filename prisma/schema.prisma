@@ -33,6 +33,7 @@ model User {
   accounts   Account[]
   sessions   Session[]
   workspaces Workspace[]
+  feedback   Feedback[]
 
   createdAt DateTime @default(now())
 }
@@ -390,4 +391,16 @@ model ContactProject {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@id([contactId, projectId])
+}
+
+// Tester feedback submitted from the sidebar. userId is nulled (not cascaded)
+// if the account is deleted, so the feedback itself survives.
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String?
+  message   String
+  page      String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
