@@ -204,15 +204,23 @@ export default async function DashboardPage() {
       {empty && (
         <div className="callout mb-8">
           <Lightbulb size={16} strokeWidth={2} className="mt-0.5 shrink-0 text-neutral-500" />
-          <div className="flex flex-1 items-center justify-between gap-4">
-            <p className="text-sm text-neutral-700">
-              Nothing here yet. Load an example practice to see how projects, opportunities, and applications fit
-              together.
-            </p>
+          <div className="flex flex-1 flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+            <div className="text-sm text-neutral-700">
+              <p className="font-medium text-neutral-900">Welcome. You&apos;re testing an early version.</p>
+              <p className="mt-1">
+                Track grants, residencies and open calls, the projects you apply with, and the people you follow up
+                with. Load the example practice to look around, or start from scratch. Try pasting a link on
+                Opportunities, or drag and resize the widgets below.
+              </p>
+              <p className="mt-1 text-neutral-500">
+                Something confusing or broken? Use &quot;Send feedback&quot; in the sidebar. Data may be reset during
+                testing.
+              </p>
+            </div>
             <form action={loadDemoData}>
               <button
                 type="submit"
-                className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-neutral-700"
+                className="shrink-0 whitespace-nowrap rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-neutral-700"
               >
                 Load example data
               </button>

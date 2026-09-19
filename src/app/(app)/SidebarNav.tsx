@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Target, Image, FolderOpen, FileText, Users } from "lucide-react";
+import { LayoutDashboard, Target, Image, FolderOpen, FileText, Users, MessageSquare } from "lucide-react";
+
+// Where tester feedback goes. Change this one line to route it elsewhere.
+const FEEDBACK_EMAIL = "sanyuprints@gmail.com";
+const FEEDBACK_HREF = `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent("Artist Dashboard feedback")}`;
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -36,6 +40,13 @@ export function SidebarNav() {
           </Link>
         );
       })}
+      <a
+        href={FEEDBACK_HREF}
+        className="mt-3 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-neutral-700 transition-colors hover:bg-black/[.04]"
+      >
+        <MessageSquare size={16} strokeWidth={2} className="shrink-0 text-neutral-500" />
+        Send feedback
+      </a>
     </nav>
   );
 }
