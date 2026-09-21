@@ -4,10 +4,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 
-// Resend's free tier only delivers to the account owner's address until a
-// domain is verified, so notifications go there. Feedback is saved to the
-// database either way; the email is a best-effort heads-up.
-const NOTIFY_EMAIL = process.env.FEEDBACK_NOTIFY_EMAIL ?? "sanyucreative@gmail.com";
+// Where the heads-up email goes. Feedback is saved to the database either way;
+// with no address configured, no email is sent.
+const NOTIFY_EMAIL = process.env.FEEDBACK_NOTIFY_EMAIL;
 const MAX_LENGTH = 4000;
 const MAX_PER_HOUR = 10;
 
@@ -28,15 +27,17 @@ export async function submitFeedback(message: string, page: string): Promise<{ o
     data: { userId: session.user.id, message: trimmed, page: page.slice(0, 200) || null },
   });
 
-  try {
-    const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    await sendEmail({
-      to: NOTIFY_EMAIL,
-      subject: "Artist Dashboard feedback",
-      html: `<p><strong>${esc(session.user.email ?? "A tester")}</strong> on <code>${esc(page)}</code>:</p><p style="white-space:pre-wrap">${esc(trimmed)}</p>`,
-    });
-  } catch (e) {
-    console.error("Feedback saved but notification email failed", e);
+  if (NOTIFY_EMAIL) {
+    try {
+      const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      await sendEmail({
+        to: NOTIFY_EMAIL,
+        subject: "Artist Dashboard feedback",
+        html: `<p><strong>${esc(session.user.email ?? "A tester")}</strong> on <code>${esc(page)}</code>:</p><p style="white-space:pre-wrap">${esc(trimmed)}</p>`,
+      });
+    } catch (e) {
+      console.error("Feedback saved but notification email failed", e);
+    }
   }
 
   return { ok: true };

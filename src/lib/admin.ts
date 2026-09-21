@@ -1,5 +1,7 @@
-// Who can read tester feedback. Comma-separated emails in FEEDBACK_ADMIN_EMAILS.
-const ADMINS = (process.env.FEEDBACK_ADMIN_EMAILS ?? "sanyucreative@gmail.com,sanyuprints@gmail.com")
+// Who administers the product (reads feedback, manages invites, always allowed
+// to sign in). Comma-separated emails in FEEDBACK_ADMIN_EMAILS; no default, so
+// no personal address is baked into the code.
+const ADMINS = (process.env.FEEDBACK_ADMIN_EMAILS ?? "")
   .split(",")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
