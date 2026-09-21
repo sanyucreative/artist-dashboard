@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lightbulb, LayoutGrid, Inbox, CalendarDays, Hourglass, ListChecks, Plus, CheckCircle2, Send, Clock } from "lucide-react";
+import { Lightbulb, LayoutGrid, CalendarDays, Hourglass, ListChecks, Plus, CheckCircle2, Send, Clock } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser, getDashboardData, isWorkspaceEmpty } from "@/lib/dashboard";
@@ -17,19 +17,12 @@ function daysAgo(date: Date) {
   return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
 }
 
-function startOfToday() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
 export default async function DashboardPage() {
   const session = await auth();
   const workspace = await getWorkspaceForUser(session!.user.id);
-  const { deadlines, awaitingDecision, counts, followUpsDue } = await getDashboardData(workspace.id);
+  const { deadlines, awaitingDecision, counts } = await getDashboardData(workspace.id);
   const empty = await isWorkspaceEmpty(workspace.id);
   const user = await prisma.user.findUnique({ where: { id: session!.user.id }, select: { name: true } });
-  const today = startOfToday();
   const tasks = await prisma.task.findMany({ where: { workspaceId: workspace.id }, orderBy: { position: "asc" } });
   const taskCategories = await prisma.taskCategory.findMany({
     where: { workspaceId: workspace.id },
@@ -104,40 +97,6 @@ export default async function DashboardPage() {
           ))}
         </dl>
       ),
-    },
-    {
-      id: "followups",
-      header: <WidgetTitle icon={Inbox} seeAll="/contacts">Follow-ups due</WidgetTitle>,
-      content:
-        followUpsDue.length === 0 ? (
-          <p className="text-sm text-neutral-500">Nothing to follow up on. Set a date on a contact to see it here.</p>
-        ) : (
-          <div>
-            <div className="table-head">
-              <span>Contact</span>
-              <span>Due</span>
-            </div>
-            <ul className="divide-y divide-neutral-100">
-              {followUpsDue.map((c) => {
-                const overdue = c.nextFollowUpDate! < today;
-                return (
-                  <li key={c.id} className="flex items-center justify-between gap-3 py-2.5">
-                    <div className="min-w-0">
-                      <Link href="/contacts" className="text-sm text-neutral-900 hover:underline">
-                        {c.name}
-                      </Link>
-                      {c.followUpNote && <p className="truncate text-xs text-neutral-500">{c.followUpNote}</p>}
-                    </div>
-                    <span className={`pill shrink-0 ${overdue ? "tag-orange" : "tag-gray"}`}>
-                      {overdue ? "Overdue " : ""}
-                      {formatShortDate(c.nextFollowUpDate!)}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ),
     },
     {
       id: "deadlines",

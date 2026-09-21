@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Target, Image, FolderOpen, FileText, Users, Inbox, Plus } from "lucide-react";
+import { LayoutDashboard, Target, Image, FolderOpen, FileText, Inbox, Plus } from "lucide-react";
 import { FeedbackButton } from "./FeedbackButton";
 
 const BASE_LINKS = [
@@ -11,7 +11,6 @@ const BASE_LINKS = [
   { href: "/projects", label: "Projects", icon: Image },
   { href: "/assets", label: "Assets", icon: FolderOpen },
   { href: "/cv", label: "Profile", icon: FileText },
-  { href: "/contacts", label: "Contacts", icon: Users },
 ];
 
 // Soft square colors for the project list, picked deterministically from the

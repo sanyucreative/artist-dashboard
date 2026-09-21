@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 // Fills an empty workspace with a realistic example practice (projects,
-// opportunities, applications at each stage, CV entries, contacts) so a new
+// opportunities, applications at each stage, CV entries) so a new
 // sign-in has something to look at instead of an all-zero dashboard.
 export async function seedDemoData(workspaceId: string) {
   const [threads, coastline] = await Promise.all([
@@ -200,28 +200,6 @@ export async function seedDemoData(workspaceId: string) {
         organization: "Midwest Photo Journal",
         date: new Date("2025-09-01"),
         isPublic: true,
-      },
-    ],
-  });
-
-  await prisma.contact.createMany({
-    data: [
-      {
-        workspaceId,
-        name: "Priya Nathan",
-        organization: "Midwest Arts Council",
-        role: "Program Officer",
-        email: "priya@example.com",
-        relationshipType: "funder",
-        lastContactedAt: new Date("2026-08-01"),
-      },
-      {
-        workspaceId,
-        name: "Marcus Webb",
-        organization: "Riverside Gallery",
-        role: "Curator",
-        email: "marcus@example.com",
-        relationshipType: "curator",
       },
     ],
   });

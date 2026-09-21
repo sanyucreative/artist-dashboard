@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 export async function getWorkspaceForUser(userId: string) {
   // v1 has no workspace switcher UI yet -- use the user's first workspace,
@@ -24,9 +23,7 @@ export async function getDashboardData(workspaceId: string) {
   const now = new Date();
   const in30Days = new Date(now.getTime() + THIRTY_DAYS_MS);
 
-  const in7Days = new Date(now.getTime() + SEVEN_DAYS_MS);
-
-  const [opportunities, milestones, awaitingDecision, statusCounts, followUpsDue] = await Promise.all([
+  const [opportunities, milestones, awaitingDecision, statusCounts] = await Promise.all([
     prisma.opportunity.findMany({
       where: { workspaceId, deadline: { gte: now, lte: in30Days } },
       orderBy: { deadline: "asc" },
@@ -45,13 +42,6 @@ export async function getDashboardData(workspaceId: string) {
       by: ["status"],
       where: { workspaceId },
       _count: true,
-    }),
-    // Includes anything overdue (no lower bound) plus due within a week --
-    // a follow-up that's slipped is more urgent, not less, so it stays on
-    // the dashboard until cleared rather than aging out of the window.
-    prisma.contact.findMany({
-      where: { workspaceId, nextFollowUpDate: { lte: in7Days } },
-      orderBy: { nextFollowUpDate: "asc" },
     }),
   ]);
 
@@ -94,5 +84,5 @@ export async function getDashboardData(workspaceId: string) {
   }
   counts.submitted = await prisma.application.count({ where: { workspaceId, submittedAt: { not: null } } });
 
-  return { deadlines, awaitingDecision, counts, followUpsDue };
+  return { deadlines, awaitingDecision, counts };
 }
