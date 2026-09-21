@@ -6,6 +6,7 @@ import { CV_CATEGORIES, titleCase } from "@/lib/constants";
 import { CVEntryRow, type CVEntryData } from "./CVEntryRow";
 import { NewCVEntryForm } from "./NewCVEntryForm";
 import { ProfileHeader } from "./ProfileHeader";
+import { DeleteAccount } from "./DeleteAccount";
 
 const CATEGORY_ICONS: Record<string, typeof Award> = {
   exhibition: ImageIcon,
@@ -130,6 +131,8 @@ export default async function CVPage() {
           })}
         </div>
       )}
+
+      <DeleteAccount email={session!.user.email!} />
     </main>
   );
 }

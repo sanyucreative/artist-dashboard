@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Target, Image, FolderOpen, FileText, Inbox, Plus } from "lucide-react";
+import { LayoutDashboard, Target, Image, FolderOpen, FileText, Inbox, Plus, UserPlus } from "lucide-react";
 import { FeedbackButton } from "./FeedbackButton";
 
 const BASE_LINKS = [
@@ -31,7 +31,11 @@ export function SidebarNav({
 }) {
   const pathname = usePathname();
   const links = isAdmin
-    ? [...BASE_LINKS, { href: "/feedback", label: "Feedback inbox", icon: Inbox }]
+    ? [
+        ...BASE_LINKS,
+        { href: "/feedback", label: "Feedback inbox", icon: Inbox },
+        { href: "/invites", label: "Invites", icon: UserPlus },
+      ]
     : BASE_LINKS;
 
   return (

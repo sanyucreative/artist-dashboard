@@ -404,3 +404,11 @@ model Feedback {
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
+
+// Emails allowed to sign in during the invite-only test. Managed from the
+// /invites page (admins only), so adding a tester never needs a deploy.
+model AllowedEmail {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

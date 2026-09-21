@@ -1,7 +1,13 @@
 import { signIn } from "@/auth";
 import { Palette } from "lucide-react";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { error } = await searchParams;
+  const notInvited = error === "not-invited";
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
       <div>
@@ -13,6 +19,11 @@ export default function LoginPage() {
           Enter your email and we&apos;ll send you a sign-in link. No password needed.
         </p>
       </div>
+      {notInvited && (
+        <p role="alert" className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          That email isn&apos;t on the invite list yet. Ask the person who invited you to add it, then try again.
+        </p>
+      )}
       <form
         action={async (formData) => {
           "use server";
