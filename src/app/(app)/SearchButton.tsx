@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Target, Image as ImageIcon, Users } from "lucide-react";
+import { Search, Target, Image as ImageIcon, ListChecks, FolderOpen } from "lucide-react";
 import { searchAll, type SearchResult } from "./searchActions";
 
 const KIND_META = {
   opportunity: { label: "Opportunities", icon: Target },
   project: { label: "Projects", icon: ImageIcon },
-  contact: { label: "Contacts", icon: Users },
+  task: { label: "Tasks", icon: ListChecks },
+  asset: { label: "Assets", icon: FolderOpen },
 } as const;
 
 export function SearchButton() {
@@ -86,7 +87,7 @@ export function SearchButton() {
     }
   }
 
-  const kinds = (["opportunity", "project", "contact"] as const).filter((k) => results.some((r) => r.kind === k));
+  const kinds = (["opportunity", "project", "task", "asset"] as const).filter((k) => results.some((r) => r.kind === k));
 
   return (
     <>
@@ -116,8 +117,8 @@ export function SearchButton() {
             role="combobox"
             aria-expanded={results.length > 0}
             aria-controls="search-results"
-            aria-label="Search opportunities, projects and contacts"
-            placeholder="Search opportunities, projects, contacts"
+            aria-label="Search opportunities, projects, tasks and assets"
+            placeholder="Search opportunities, projects, tasks, assets"
             className="w-full py-3.5 text-sm outline-none placeholder:text-neutral-500"
           />
         </div>

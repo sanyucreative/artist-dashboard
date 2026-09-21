@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 import { RELATIONSHIP_TYPES, titleCase } from "@/lib/constants";
 import { ContactRow, type ContactData } from "./ContactRow";
-import { SearchClear } from "../SearchClear";
 import { NewContactForm } from "./NewContactForm";
 
 export default async function ContactsPage({
@@ -17,22 +16,12 @@ export default async function ContactsPage({
   const session = await auth();
   const workspace = await getWorkspaceForUser(session!.user.id);
   const relationshipType = typeof params.type === "string" ? params.type : "all";
-  const q = typeof params.q === "string" ? params.q.trim().slice(0, 100) : "";
 
   const [contacts, opportunities, projects] = await Promise.all([
     prisma.contact.findMany({
       where: {
         workspaceId: workspace.id,
         ...(relationshipType !== "all" ? { relationshipType } : {}),
-        ...(q
-          ? {
-              OR: [
-                { name: { contains: q, mode: "insensitive" as const } },
-                { organization: { contains: q, mode: "insensitive" as const } },
-                { email: { contains: q, mode: "insensitive" as const } },
-              ],
-            }
-          : {}),
       },
       include: { opportunities: true, projects: true },
       orderBy: { name: "asc" },
@@ -46,8 +35,6 @@ export default async function ContactsPage({
       <PageHeader title="Contacts" icon={Users}>
         <NewContactForm />
       </PageHeader>
-
-      {q && <SearchClear q={q} href="/contacts" />}
 
       <form className="mb-6 flex items-center gap-2" method="get">
         <select name="type" defaultValue={relationshipType} className="rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm" aria-label="Relationship type">

@@ -4,6 +4,7 @@ import { FolderOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 import { VISUAL_ASSET_TYPES, VERSIONED_ASSET_TYPES } from "@/lib/constants";
+import { SearchClear } from "../SearchClear";
 import { NewAssetForm } from "./NewAssetForm";
 import { AssetCard, type AssetCardData } from "./AssetCard";
 
@@ -16,6 +17,7 @@ export default async function AssetsPage({
   const session = await auth();
   const workspace = await getWorkspaceForUser(session!.user.id);
   const projectFilter = typeof params.project === "string" ? params.project : "all";
+  const q = typeof params.q === "string" ? params.q.trim().slice(0, 100) : "";
 
   const [projects, assets] = await Promise.all([
     prisma.project.findMany({ where: { workspaceId: workspace.id }, orderBy: { title: "asc" } }),
@@ -23,6 +25,15 @@ export default async function AssetsPage({
       where: {
         workspaceId: workspace.id,
         ...(projectFilter !== "all" ? { projectId: projectFilter } : {}),
+        ...(q
+          ? {
+              OR: [
+                { title: { contains: q, mode: "insensitive" as const } },
+                { notes: { contains: q, mode: "insensitive" as const } },
+                { version: { contains: q, mode: "insensitive" as const } },
+              ],
+            }
+          : {}),
       },
       include: {
         project: { select: { title: true } },
@@ -54,6 +65,8 @@ export default async function AssetsPage({
       <PageHeader title="Asset library" icon={FolderOpen}>
         <NewAssetForm projects={projects} />
       </PageHeader>
+
+      {q && <SearchClear q={q} href="/assets" />}
 
       <form className="mb-8 flex items-center gap-2" method="get">
         <select
