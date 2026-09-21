@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 import { OPPORTUNITY_TYPES, titleCase } from "@/lib/constants";
 import { OpportunityRow } from "./OpportunityRow";
+import { SearchClear } from "../SearchClear";
 import { NewOpportunityForm } from "./NewOpportunityForm";
 import { CsvImportForm } from "./CsvImportForm";
 import type { Prisma } from "@/generated/prisma/client";
@@ -25,7 +26,20 @@ export default async function OpportunitiesPage({
   const fee = typeof params.fee === "string" ? params.fee : "any";
   const applied = typeof params.applied === "string" ? params.applied : "any";
 
+  const q = typeof params.q === "string" ? params.q.trim().slice(0, 100) : "";
+
   const where: Prisma.OpportunityWhereInput = { workspaceId: workspace.id };
+  if (q) {
+    where.AND = [
+      {
+        OR: [
+          { name: { contains: q, mode: "insensitive" } },
+          { organization: { contains: q, mode: "insensitive" } },
+          { discipline: { contains: q, mode: "insensitive" } },
+        ],
+      },
+    ];
+  }
   if (discipline) where.discipline = { contains: discipline };
   if (type !== "all") where.type = type;
   if (deadlineFrom || deadlineTo) {
@@ -56,6 +70,8 @@ export default async function OpportunitiesPage({
         <CsvImportForm />
         <NewOpportunityForm />
       </PageHeader>
+
+      {q && <SearchClear q={q} href="/opportunities" />}
 
       <form className="mb-6 flex flex-wrap items-start gap-2" method="get">
         <input
