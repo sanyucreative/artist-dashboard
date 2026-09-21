@@ -27,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       sidebar={
         <>
           <Link href="/dashboard" className="mb-6 block px-5 pt-2 font-serif text-[22px] leading-tight tracking-tight text-neutral-900">
-            Artist Dashboard
+            Plinth
           </Link>
 
           <SearchButton />

@@ -32,7 +32,7 @@ export async function submitFeedback(message: string, page: string): Promise<{ o
       const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       await sendEmail({
         to: NOTIFY_EMAIL,
-        subject: "Artist Dashboard feedback",
+        subject: "Plinth feedback",
         html: `<p><strong>${esc(session.user.email ?? "A tester")}</strong> on <code>${esc(page)}</code>:</p><p style="white-space:pre-wrap">${esc(trimmed)}</p>`,
       });
     } catch (e) {

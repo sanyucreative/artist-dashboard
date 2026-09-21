@@ -15,11 +15,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Nodemailer({
       server: { host: "localhost", port: 25 },
-      from: "Artist Dashboard <onboarding@resend.dev>",
+      from: "Plinth <onboarding@resend.dev>",
       async sendVerificationRequest({ identifier, url }) {
         await sendEmail({
           to: identifier,
-          subject: "Sign in to Artist Dashboard",
+          subject: "Sign in to Plinth",
           html: `<p>Click below to sign in.</p><p><a href="${url}">${url}</a></p>`,
         });
       },

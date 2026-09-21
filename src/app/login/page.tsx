@@ -14,7 +14,7 @@ export default async function LoginPage({
         <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-neutral-800 text-white">
           <Palette size={18} strokeWidth={2} />
         </span>
-        <h1 className="text-xl font-semibold text-neutral-900">Artist Dashboard</h1>
+        <h1 className="text-xl font-semibold text-neutral-900">Plinth</h1>
         <p className="mt-1 text-sm text-neutral-500">
           Enter your email and we&apos;ll send you a sign-in link. No password needed.
         </p>

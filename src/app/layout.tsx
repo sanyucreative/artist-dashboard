@@ -5,7 +5,7 @@ import "./globals.css";
 const serif = Newsreader({ subsets: ["latin"], variable: "--font-newsreader" });
 
 export const metadata: Metadata = {
-  title: "Artist Dashboard",
+  title: "Plinth",
   description: "Track opportunities, projects, and the applications that connect them.",
 };
 
