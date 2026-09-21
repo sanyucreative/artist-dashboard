@@ -2,15 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireWorkspaceId, ownsProject } from "@/lib/tenant";
 import { prisma } from "@/lib/prisma";
-import { getWorkspaceForUser } from "@/lib/dashboard";
 
-async function currentWorkspaceId() {
-  const session = await auth();
-  const workspace = await getWorkspaceForUser(session!.user.id);
-  return workspace.id;
-}
+const currentWorkspaceId = requireWorkspaceId;
 
 function str(formData: FormData, key: string) {
   const v = formData.get(key);
@@ -51,8 +46,9 @@ export async function createProject(formData: FormData) {
 }
 
 export async function updateProject(id: string, formData: FormData) {
-  await prisma.project.update({
-    where: { id },
+  const workspaceId = await currentWorkspaceId();
+  await prisma.project.updateMany({
+    where: { id, workspaceId },
     data: {
       title: str(formData, "title") ?? "Untitled project",
       workingTitle: str(formData, "workingTitle"),
@@ -69,12 +65,14 @@ export async function updateProject(id: string, formData: FormData) {
 }
 
 export async function deleteProject(id: string) {
-  await prisma.project.delete({ where: { id } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.project.deleteMany({ where: { id, workspaceId } });
   revalidatePath("/projects");
   redirect("/projects");
 }
 
 export async function addParticipant(projectId: string, formData: FormData) {
+  await ownsProject(await currentWorkspaceId(), projectId);
   await prisma.participant.create({
     data: {
       projectId,
@@ -89,16 +87,22 @@ export async function addParticipant(projectId: string, formData: FormData) {
 }
 
 export async function updateParticipantConsent(projectId: string, participantId: string, consentStatus: string) {
-  await prisma.participant.update({ where: { id: participantId }, data: { consentStatus } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.participant.updateMany({
+    where: { id: participantId, project: { workspaceId } },
+    data: { consentStatus },
+  });
   revalidatePath(`/projects/${projectId}`);
 }
 
 export async function deleteParticipant(projectId: string, participantId: string) {
-  await prisma.participant.delete({ where: { id: participantId } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.participant.deleteMany({ where: { id: participantId, project: { workspaceId } } });
   revalidatePath(`/projects/${projectId}`);
 }
 
 export async function addMilestone(projectId: string, formData: FormData) {
+  await ownsProject(await currentWorkspaceId(), projectId);
   await prisma.milestone.create({
     data: {
       projectId,
@@ -113,22 +117,28 @@ export async function addMilestone(projectId: string, formData: FormData) {
 }
 
 export async function setMilestoneStatus(projectId: string, milestoneId: string, status: string) {
-  await prisma.milestone.update({ where: { id: milestoneId }, data: { status } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.milestone.updateMany({
+    where: { id: milestoneId, project: { workspaceId } },
+    data: { status },
+  });
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/dashboard");
 }
 
 export async function deleteMilestone(projectId: string, milestoneId: string) {
-  await prisma.milestone.delete({ where: { id: milestoneId } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.milestone.deleteMany({ where: { id: milestoneId, project: { workspaceId } } });
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/dashboard");
 }
 
 export async function addExhibition(projectId: string, formData: FormData) {
-  const project = await prisma.project.findUniqueOrThrow({ where: { id: projectId } });
+  const workspaceId = await currentWorkspaceId();
+  await ownsProject(workspaceId, projectId);
   await prisma.cVEntry.create({
     data: {
-      workspaceId: project.workspaceId,
+      workspaceId,
       projectId,
       category: str(formData, "category") ?? "exhibition",
       title: str(formData, "title") ?? "Untitled",
@@ -143,6 +153,7 @@ export async function addExhibition(projectId: string, formData: FormData) {
 }
 
 export async function deleteExhibition(projectId: string, cvEntryId: string) {
-  await prisma.cVEntry.delete({ where: { id: cvEntryId } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.cVEntry.deleteMany({ where: { id: cvEntryId, workspaceId } });
   revalidatePath(`/projects/${projectId}`);
 }

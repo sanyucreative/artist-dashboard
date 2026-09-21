@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireWorkspaceId, ownsApplication, ownsProject, ownsAsset } from "@/lib/tenant";
 
 function str(formData: FormData, key: string) {
   const v = formData.get(key);
@@ -25,6 +26,8 @@ const CV_CATEGORY_BY_TYPE: Record<string, string> = {
 };
 
 export async function setApplicationStatus(applicationId: string, status: string) {
+  const workspaceId = await requireWorkspaceId();
+  await ownsApplication(workspaceId, applicationId);
   const data: { status: string; submittedAt?: Date } = { status };
   if (status === "submitted") {
     const existing = await prisma.application.findUnique({ where: { id: applicationId } });
@@ -36,6 +39,7 @@ export async function setApplicationStatus(applicationId: string, status: string
 }
 
 export async function setOutcome(applicationId: string, formData: FormData) {
+  await ownsApplication(await requireWorkspaceId(), applicationId);
   const outcome = str(formData, "outcome");
   const application = await prisma.application.update({
     where: { id: applicationId },
@@ -77,6 +81,9 @@ export async function setOutcome(applicationId: string, formData: FormData) {
 }
 
 export async function toggleProjectLink(applicationId: string, projectId: string, linked: boolean) {
+  const workspaceId = await requireWorkspaceId();
+  await ownsApplication(workspaceId, applicationId);
+  await ownsProject(workspaceId, projectId);
   if (linked) {
     await prisma.applicationProject.delete({ where: { applicationId_projectId: { applicationId, projectId } } });
   } else {
@@ -86,6 +93,9 @@ export async function toggleProjectLink(applicationId: string, projectId: string
 }
 
 export async function toggleAssetLink(applicationId: string, assetId: string, linked: boolean) {
+  const workspaceId = await requireWorkspaceId();
+  await ownsApplication(workspaceId, applicationId);
+  await ownsAsset(workspaceId, assetId);
   if (linked) {
     await prisma.applicationAsset.delete({ where: { applicationId_assetId: { applicationId, assetId } } });
   } else {

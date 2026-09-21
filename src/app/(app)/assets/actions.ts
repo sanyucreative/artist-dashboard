@@ -1,15 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { requireWorkspaceId, ownsProjectOrNull } from "@/lib/tenant";
 import { prisma } from "@/lib/prisma";
-import { getWorkspaceForUser } from "@/lib/dashboard";
 
-async function currentWorkspaceId() {
-  const session = await auth();
-  const workspace = await getWorkspaceForUser(session!.user.id);
-  return workspace.id;
-}
+const currentWorkspaceId = requireWorkspaceId;
 
 function str(formData: FormData, key: string) {
   const v = formData.get(key);
@@ -18,6 +13,7 @@ function str(formData: FormData, key: string) {
 
 export async function createAsset(formData: FormData) {
   const workspaceId = await currentWorkspaceId();
+  await ownsProjectOrNull(workspaceId, str(formData, "projectId"));
   await prisma.asset.create({
     data: {
       workspaceId,
@@ -34,8 +30,10 @@ export async function createAsset(formData: FormData) {
 }
 
 export async function updateAsset(id: string, formData: FormData) {
-  await prisma.asset.update({
-    where: { id },
+  const workspaceId = await currentWorkspaceId();
+  await ownsProjectOrNull(workspaceId, str(formData, "projectId"));
+  await prisma.asset.updateMany({
+    where: { id, workspaceId },
     data: {
       type: str(formData, "type") ?? "other",
       title: str(formData, "title") ?? "Untitled asset",
@@ -50,7 +48,8 @@ export async function updateAsset(id: string, formData: FormData) {
 }
 
 export async function deleteAsset(id: string) {
-  await prisma.asset.delete({ where: { id } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.asset.deleteMany({ where: { id, workspaceId } });
   revalidatePath("/assets");
   revalidatePath("/projects");
 }

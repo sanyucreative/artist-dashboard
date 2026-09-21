@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requireWorkspaceId } from "@/lib/tenant";
 import { ProjectHeader } from "./ProjectHeader";
 import { ParticipantList } from "./ParticipantList";
 import { MilestoneList } from "./MilestoneList";
@@ -9,9 +10,10 @@ import { APPLICATION_STATUS_LABELS } from "@/lib/constants";
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspaceId = await requireWorkspaceId();
 
-  const project = await prisma.project.findUnique({
-    where: { id },
+  const project = await prisma.project.findFirst({
+    where: { id, workspaceId },
     include: {
       participants: { orderBy: { createdAt: "asc" } },
       milestones: { orderBy: { dueDate: "asc" } },

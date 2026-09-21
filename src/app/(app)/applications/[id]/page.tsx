@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requireWorkspaceId } from "@/lib/tenant";
 import { formatFullDate } from "@/lib/format";
 import { StatusStepper } from "./StatusStepper";
 import { ProjectLinker, AssetLinker } from "./LinkLists";
@@ -8,9 +9,10 @@ import { OutcomeForm } from "./OutcomeForm";
 
 export default async function ApplicationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspaceId = await requireWorkspaceId();
 
-  const application = await prisma.application.findUnique({
-    where: { id },
+  const application = await prisma.application.findFirst({
+    where: { id, workspaceId },
     include: {
       opportunity: true,
       projects: { include: { project: true } },

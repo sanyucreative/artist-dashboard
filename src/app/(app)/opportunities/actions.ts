@@ -2,15 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireWorkspaceId, ownsOpportunity } from "@/lib/tenant";
 import { prisma } from "@/lib/prisma";
-import { getWorkspaceForUser } from "@/lib/dashboard";
 
-async function currentWorkspaceId() {
-  const session = await auth();
-  const workspace = await getWorkspaceForUser(session!.user.id);
-  return workspace.id;
-}
+const currentWorkspaceId = requireWorkspaceId;
 
 function str(formData: FormData, key: string) {
   const v = formData.get(key);
@@ -50,8 +45,9 @@ export async function createOpportunity(formData: FormData) {
 }
 
 export async function updateOpportunity(id: string, formData: FormData) {
-  await prisma.opportunity.update({
-    where: { id },
+  const workspaceId = await currentWorkspaceId();
+  await prisma.opportunity.updateMany({
+    where: { id, workspaceId },
     data: {
       name: str(formData, "name") ?? "Untitled opportunity",
       organization: str(formData, "organization"),
@@ -75,29 +71,37 @@ export async function updateOpportunity(id: string, formData: FormData) {
 }
 
 export async function deleteOpportunity(id: string) {
-  await prisma.opportunity.delete({ where: { id } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.opportunity.deleteMany({ where: { id, workspaceId } });
   revalidatePath("/opportunities");
 }
 
 export async function addEligibilityCriterion(opportunityId: string, formData: FormData) {
   const label = str(formData, "label");
   if (!label) return;
+  await ownsOpportunity(await currentWorkspaceId(), opportunityId);
   await prisma.eligibilityCriterion.create({ data: { opportunityId, label } });
   revalidatePath("/opportunities");
 }
 
 export async function toggleEligibilityCriterion(opportunityId: string, criterionId: string, checked: boolean) {
-  await prisma.eligibilityCriterion.update({ where: { id: criterionId }, data: { checked: !checked } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.eligibilityCriterion.updateMany({
+    where: { id: criterionId, opportunity: { workspaceId } },
+    data: { checked: !checked },
+  });
   revalidatePath("/opportunities");
 }
 
 export async function deleteEligibilityCriterion(opportunityId: string, criterionId: string) {
-  await prisma.eligibilityCriterion.delete({ where: { id: criterionId } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.eligibilityCriterion.deleteMany({ where: { id: criterionId, opportunity: { workspaceId } } });
   revalidatePath("/opportunities");
 }
 
 export async function startApplication(opportunityId: string) {
   const workspaceId = await currentWorkspaceId();
+  await ownsOpportunity(workspaceId, opportunityId);
   const application = await prisma.application.create({
     data: { opportunityId, workspaceId, status: "researching" },
   });

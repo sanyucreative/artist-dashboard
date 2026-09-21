@@ -1,20 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { requireWorkspaceId } from "@/lib/tenant";
 import { prisma } from "@/lib/prisma";
-import { getWorkspaceForUser } from "@/lib/dashboard";
 
-async function currentWorkspaceId() {
-  const session = await auth();
-  const workspace = await getWorkspaceForUser(session!.user.id);
-  return workspace.id;
-}
+const currentWorkspaceId = requireWorkspaceId;
 
 export async function createTask(title: string, categoryId: string | null) {
   const trimmed = title.trim();
   if (!trimmed) return;
   const workspaceId = await currentWorkspaceId();
+  if (categoryId && !(await prisma.taskCategory.count({ where: { id: categoryId, workspaceId } }))) {
+    throw new Error("Not found");
+  }
   const last = await prisma.task.findFirst({ where: { workspaceId, categoryId }, orderBy: { position: "desc" } });
   await prisma.task.create({
     data: { workspaceId, categoryId, title: trimmed, position: (last?.position ?? -1) + 1 },
@@ -23,12 +21,14 @@ export async function createTask(title: string, categoryId: string | null) {
 }
 
 export async function toggleTask(id: string, done: boolean) {
-  await prisma.task.update({ where: { id }, data: { done } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.task.updateMany({ where: { id, workspaceId }, data: { done } });
   revalidatePath("/dashboard");
 }
 
 export async function deleteTask(id: string) {
-  await prisma.task.delete({ where: { id } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.task.deleteMany({ where: { id, workspaceId } });
   revalidatePath("/dashboard");
 }
 

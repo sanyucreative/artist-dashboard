@@ -1,15 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { requireWorkspaceId } from "@/lib/tenant";
 import { prisma } from "@/lib/prisma";
-import { getWorkspaceForUser } from "@/lib/dashboard";
 
-async function currentWorkspaceId() {
-  const session = await auth();
-  const workspace = await getWorkspaceForUser(session!.user.id);
-  return workspace.id;
-}
+const currentWorkspaceId = requireWorkspaceId;
 
 function str(formData: FormData, key: string) {
   const v = formData.get(key);
@@ -39,8 +34,9 @@ export async function createCVEntry(formData: FormData) {
 }
 
 export async function updateCVEntry(id: string, formData: FormData) {
-  await prisma.cVEntry.update({
-    where: { id },
+  const workspaceId = await currentWorkspaceId();
+  await prisma.cVEntry.updateMany({
+    where: { id, workspaceId },
     data: {
       category: str(formData, "category") ?? "exhibition",
       title: str(formData, "title") ?? "Untitled",
@@ -55,6 +51,7 @@ export async function updateCVEntry(id: string, formData: FormData) {
 }
 
 export async function deleteCVEntry(id: string) {
-  await prisma.cVEntry.delete({ where: { id } });
+  const workspaceId = await currentWorkspaceId();
+  await prisma.cVEntry.deleteMany({ where: { id, workspaceId } });
   revalidatePath("/cv");
 }
