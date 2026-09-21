@@ -27,6 +27,7 @@
   --color-neutral-800: #454440;
   --color-neutral-900: #37352f;
 
+  --font-serif: var(--font-newsreader), Georgia, serif;
   --color-blue-500: #2383e2;
   --color-blue-600: #0b6bcb;
 
@@ -161,7 +162,7 @@ textarea:focus-visible {
   justify-content: center;
   gap: 6px;
   border-radius: 6px;
-  background: var(--color-neutral-900);
+  background: #2563eb;
   color: #fff;
   padding: 6px 12px;
   font-size: 14px;
@@ -172,7 +173,7 @@ textarea:focus-visible {
     transform 120ms;
 }
 .btn-primary:hover {
-  background: var(--color-neutral-700);
+  background: #1d4ed8;
 }
 .btn-primary:active {
   transform: translateY(1px);
@@ -203,4 +204,54 @@ input::placeholder,
 textarea::placeholder {
   color: var(--color-neutral-500);
   opacity: 1;
+}
+
+/* Fully rounded status pill, used for the status columns in dashboard tables. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 1px 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Round checkbox used by task rows. */
+.check {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-neutral-400);
+  background: #fff;
+  cursor: pointer;
+  transition:
+    background-color 120ms,
+    border-color 120ms;
+}
+.check:hover {
+  border-color: #2563eb;
+}
+.check:checked {
+  border-color: #2563eb;
+  background: #2563eb
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5'/%3E%3C/svg%3E")
+    center / 100% no-repeat;
+}
+
+/* Edge-to-edge column header band inside a widget card. */
+.table-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 -16px;
+  padding: 6px 16px;
+  background: var(--color-neutral-50);
+  border-block: 1px solid var(--color-neutral-200);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-neutral-600);
 }

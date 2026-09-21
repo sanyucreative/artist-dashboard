@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import { auth, signOut } from "@/auth";
 import { getWorkspaceForUser } from "@/lib/dashboard";
 import { SidebarNav } from "./SidebarNav";
@@ -12,21 +14,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // for the rare case of a stale/invalid cookie that passed that one.
   if (!session?.user?.id) redirect("/login");
   const workspace = await getWorkspaceForUser(session.user.id);
+  const projects = await prisma.project.findMany({
+    where: { workspaceId: workspace.id },
+    orderBy: { createdAt: "desc" },
+    take: 8,
+    select: { id: true, title: true },
+  });
 
   return (
     <AppShell
       sidebar={
         <>
-          <div className="mb-1 flex items-center gap-2 px-3 py-1">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-neutral-800 text-xs font-semibold text-white">
-              {workspace.name.charAt(0).toUpperCase()}
-            </span>
-            <span className="truncate text-sm font-medium text-neutral-900">{workspace.name}</span>
-          </div>
+          <Link href="/dashboard" className="mb-6 block px-5 pt-2 font-serif text-[22px] leading-tight tracking-tight text-neutral-900">
+            Artist Dashboard
+          </Link>
 
-          <div className="mt-2">
-            <SidebarNav isAdmin={isFeedbackAdmin(session.user.email)} />
-          </div>
+          <SidebarNav isAdmin={isFeedbackAdmin(session.user.email)} projects={projects} />
 
           <div className="mt-auto px-2 pt-3">
             <div className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5">

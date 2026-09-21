@@ -26,7 +26,7 @@ export function TaskList({ tasks }: { tasks: TaskData[] }) {
               type="checkbox"
               checked={t.done}
               onChange={(e) => startTransition(() => toggleTask(t.id, e.target.checked))}
-              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-neutral-800"
+              className="check mt-0.5"
             />
             <span
               className={`min-w-0 flex-1 text-sm leading-snug transition-colors duration-200 ${

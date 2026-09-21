@@ -38,7 +38,7 @@ export function TaskWidgetHeader({
     <div className="min-w-0 flex-1">
       <div className="flex min-h-7 items-center gap-2">
         {icon}
-        <h2 className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-700">{label}</h2>
+        <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold text-neutral-900">{label}</h2>
         <button
           type="button"
           onClick={() => setAdding((v) => !v)}

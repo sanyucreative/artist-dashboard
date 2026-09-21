@@ -42,7 +42,7 @@ export function FeedbackButton() {
       <button
         type="button"
         onClick={open}
-        className="mt-3 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-neutral-700 transition-colors hover:bg-black/[.04]"
+        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-neutral-700 transition-colors hover:bg-black/[.05]"
       >
         <MessageSquare size={16} strokeWidth={2} className="shrink-0 text-neutral-500" />
         Send feedback

@@ -67,7 +67,7 @@ function ResizableContent({ id, children }: { id: string; children: React.ReactN
   }, [id]);
 
   return (
-    <div ref={ref} className="min-h-[64px] resize-y overflow-auto pb-1">
+    <div ref={ref} className="-mx-4 min-h-[64px] resize-y overflow-x-hidden overflow-y-auto px-4 pb-1">
       {children}
     </div>
   );

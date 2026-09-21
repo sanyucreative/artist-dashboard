@@ -15,7 +15,7 @@ export function AddTaskCategory() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900"
+        className="btn-secondary gap-1.5 bg-white py-1.5 text-sm"
       >
         <FolderPlus size={14} strokeWidth={2} /> Add task category
       </button>
